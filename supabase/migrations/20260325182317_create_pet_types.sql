@@ -1,0 +1,4 @@
+CREATE TABLE public.pet_types (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
