@@ -1,0 +1,57 @@
+### 1. Створити нового користувача (POST)
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "email": "maksymka.b@mail.com",
+  "password": "secure_pass_2",
+  "firstName": "Максим",
+  "lastName": "Бойко",
+  "birthDate": "1999-08-22",
+  "gender": "male",
+  "bio": "Студент 4-го курсу. Багато вчуся, тому дуже ціную тишу і спокій. Без шкідливих звичок.",
+  "occupation": "student",
+  "sleepSchedule": "early_bird",
+  "guestsFrequency": "rarely",
+  "noiseTolerance": "low",
+  "cleanlinessLevel": "high",
+  "dietaryPreferences": "vegetarian"
+}
+
+### 2. Отримати список усіх користувачів (GET)
+GET http://localhost:8080/api/users
+
+
+### 3. Отримати користувача за ID (GET)
+GET http://localhost:8080/api/users/32b45fbc-d795-4c30-8be2-380724755084
+
+
+### 4. Повністю оновити профіль (PUT)
+PUT http://localhost:8080/api/users/32b45fbc-d795-4c30-8be2-380724755084
+Content-Type: application/json
+
+{
+  "email": "nemaksym.b@mail.com",
+  "firstName": "ВжеНеМаксим",
+  "lastName": "НеБойко",
+  "birthDate": "2000-08-22",
+  "gender": "male",
+  "bio": "Студент 2-го курсу. Багато вчуся, тому дуже ціную тишу і спокій. Без шкідливих звичок.",
+  "occupation": "student",
+  "avatarUrl": "https://example.com/my-new-avatar.png"
+}
+
+
+### 5. Частково оновити налаштування (PATCH)
+PATCH http://localhost:8080/api/users/32b45fbc-d795-4c30-8be2-380724755084/preferences
+Content-Type: application/json
+
+{
+  "sleep_schedule": "Рання пташка",
+  "noise_tolerance": "Середня",
+  "cleanliness_level": "Високий"
+}
+
+
+### 6. Видалити користувача (DELETE)
+DELETE http://localhost:8080/api/users/7745e4f4-cab8-4db8-b853-741efa8f624e

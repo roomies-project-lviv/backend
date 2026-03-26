@@ -1,12 +1,17 @@
 package com.roomies.backend.models;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity // Вказує Spring Boot, що цей клас пов'язаний з базою даних
-@Table(name = "users") // Вказуємо точну назву твоєї таблиці 
+@Table(name = "users") // Вказуємо точну назву твоєї таблиці
+@DynamicInsert
+@DynamicUpdate
 public class User {
 
     @Id // Це первинний ключ 
@@ -54,7 +59,7 @@ public class User {
     private String bio; 
 
     @Column(name = "created_at", insertable = false, updatable = false)
-    private LocalDateTime createdAt; 
+    private LocalDateTime createdAt;
 
     @Column(name = "lifestyle_flags", columnDefinition = "bit(8)")
     private String lifestyleFlags;
@@ -69,11 +74,46 @@ public class User {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
 
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public LocalDate getBirthDate() { return birthDate; }
+    public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
+
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+
+    public String getSleepSchedule() { return sleepSchedule; }
+    public void setSleepSchedule(String sleepSchedule) { this.sleepSchedule = sleepSchedule; }
+
+    public String getOccupation() { return occupation; }
+    public void setOccupation(String occupation) { this.occupation = occupation; }
+
+    public String getGuestsFrequency() { return guestsFrequency; }
+    public void setGuestsFrequency(String guestsFrequency) { this.guestsFrequency = guestsFrequency; }
+
+    public String getNoiseTolerance() { return noiseTolerance; }
+    public void setNoiseTolerance(String noiseTolerance) { this.noiseTolerance = noiseTolerance; }
+
+    public String getCleanlinessLevel() { return cleanlinessLevel; }
+    public void setCleanlinessLevel(String cleanlinessLevel) { this.cleanlinessLevel = cleanlinessLevel; }
+
+    public String getDietaryPreferences() { return dietaryPreferences; }
+    public void setDietaryPreferences(String dietaryPreferences) { this.dietaryPreferences = dietaryPreferences; }
+
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
 
     public String getLifestyleFlags() { return lifestyleFlags; }
     public void setLifestyleFlags(String lifestyleFlags) { this.lifestyleFlags = lifestyleFlags; }
