@@ -1,87 +1,33 @@
-package com.roomies.backend.models;
-
-import jakarta.persistence.*;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
+package com.roomies.backend.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity // Вказує Spring Boot, що цей клас пов'язаний з базою даних
-@Table(name = "users") // Вказуємо точну назву твоєї таблиці
-@DynamicInsert
-@DynamicUpdate
-public class User {
-
-    @Id // Це первинний ключ 
-    @GeneratedValue(strategy = GenerationType.UUID)
+public class UserDto {
     private UUID id;
-
-    @Column(nullable = false, unique = true) // Пошта унікальна і не може бути порожньою [cite: 208]
     private String email;
-
-    @Column(nullable = false)
-    private String password; 
-
-    @Column(name = "first_name", nullable = false) // Якщо назва в БД зі зміїним регістром, вказуємо її так 
     private String firstName;
-
-    @Column(name = "last_name", nullable = false)
-    private String lastName; 
-
-    @Column(name = "birth_date")
-    private LocalDate birthDate; 
-
-    private String gender; 
-    
-    @Column(name = "avatar_url")
-    private String avatarUrl; 
-
-    @Column(name = "sleep_schedule")
+    private String lastName;
+    private LocalDate birthDate;
+    private String gender;
+    private String avatarUrl;
     private String sleepSchedule;
-
-    private String occupation; 
-    
-    @Column(name = "guests_frequency")
-    private String guestsFrequency; 
-
-    @Column(name = "noise_tolerance")
-    private String noiseTolerance; 
-
-    @Column(name = "cleanliness_level")
-    private String cleanlinessLevel; 
-
-    @Column(name = "dietary_preferences")
-    private String dietaryPreferences; 
-
-    @Column(columnDefinition = "TEXT")
-    private String bio; 
-
-    @Column(name = "created_at", insertable = false, updatable = false)
+    private String occupation;
+    private String guestsFrequency;
+    private String noiseTolerance;
+    private String cleanlinessLevel;
+    private String dietaryPreferences;
+    private String bio;
     private LocalDateTime createdAt;
-
-    @Column(name = "lifestyle_flags", columnDefinition = "bit(8)")
     private String lifestyleFlags;
 
-    // (Поки що я пропустив pet_type_id та lifestyle_flags, ми додамо їх наступним кроком, коли налаштуємо зв'язки з іншими таблицями)
-
-    // Зв'язок із таблицею pet_types
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pet_type_id") // Назва колонки в таблиці users
-    private PetType petType;
-
-
-    // Гетери та Сетери
-
+    // --- Гетери та Сетери ---
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
@@ -120,11 +66,35 @@ public class User {
     public void setBio(String bio) { this.bio = bio; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public String getLifestyleFlags() { return lifestyleFlags; }
     public void setLifestyleFlags(String lifestyleFlags) { this.lifestyleFlags = lifestyleFlags; }
+    
+    private Integer petTypeId;
+    private String petTypeName;
 
-    public PetType getPetType() { return petType; }
-    public void setPetType(PetType petType) { this.petType = petType; }
+    
+    // Додаємо розшифровані поля:
+    private Boolean isSmoker;
+    private Boolean drinksAlcohol;
+    private Boolean partyHabits;
+
+    // --- Гетери та Сетери для нових полів ---
+    public Boolean getIsSmoker() { return isSmoker; }
+    public void setIsSmoker(Boolean isSmoker) { this.isSmoker = isSmoker; }
+
+    public Boolean getDrinksAlcohol() { return drinksAlcohol; }
+    public void setDrinksAlcohol(Boolean drinksAlcohol) { this.drinksAlcohol = drinksAlcohol; }
+
+    public Boolean getPartyHabits() { return partyHabits; }
+    public void setPartyHabits(Boolean partyHabits) { this.partyHabits = partyHabits; }
+
+    public Integer getPetTypeId() { return petTypeId; }
+    public void setPetTypeId(Integer petTypeId) { this.petTypeId = petTypeId; }
+
+    public String getPetTypeName() { return petTypeName; }
+    public void setPetTypeName(String petTypeName) { this.petTypeName = petTypeName; }
+
 
 }
