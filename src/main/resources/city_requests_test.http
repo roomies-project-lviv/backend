@@ -1,0 +1,27 @@
+### 1. Додати нове місто (POST)
+POST http://localhost:8080/api/cities
+Content-Type: application/json
+
+{
+  "name": "Яблуневе"
+}
+
+### 2. Отримати список усіх міст (GET)
+GET http://localhost:8080/api/cities
+
+
+### 3. Отримати конкретне місто за ID (GET)
+GET http://localhost:8080/api/cities/6
+
+
+### 4. Оновити назву існуючого міста (PUT)
+PUT http://localhost:8080/api/cities/6
+Content-Type: application/json
+
+{
+  "name": "Козятин"
+}
+
+
+### 5. Видалити місто (DELETE)
+DELETE http://localhost:8080/api/cities/7
