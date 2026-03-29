@@ -1,0 +1,38 @@
+### 1. Створити новий розклад для користувача (PUT)
+PUT http://localhost:8080/api/users/32b45fbc-d795-4c30-8be2-380724755084/work-schedule
+Content-Type: application/json
+
+{
+  "scheduleType": "Гібридний",
+  "baseLocation": "Офіс у Львові",
+  "evenPeriodLocation": "Робота з дому",
+  "oddPeriodLocation": "Робота з офісу",
+  "week1OfficeDays": [1, 3, 5],
+  "week2OfficeDays": [2, 4],
+  "shiftWorkDays": null,
+  "shiftRestDays": null
+}
+
+
+### 2. Отримати розклад користувача (GET)
+GET http://localhost:8080/api/users/32b45fbc-d795-4c30-8be2-380724755084/work-schedule
+
+
+### 3. Оновити розклад (той самий PUT запит, але з новими даними)
+PUT http://localhost:8080/api/users/32b45fbc-d795-4c30-8be2-380724755084/work-schedule
+Content-Type: application/json
+
+{
+  "scheduleType": "Повністю віддалена робота",
+  "baseLocation": "Дім",
+  "evenPeriodLocation": "Дім",
+  "oddPeriodLocation": "Дім",
+  "week1OfficeDays": [],
+  "week2OfficeDays": [],
+  "shiftWorkDays": 0,
+  "shiftRestDays": 0
+}
+
+
+### 4. Видалити розклад (DELETE)
+DELETE http://localhost:8080/api/users/32b45fbc-d795-4c30-8be2-380724755084/work-schedule
