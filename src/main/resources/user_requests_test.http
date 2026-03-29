@@ -23,11 +23,11 @@ GET http://localhost:8080/api/users
 
 
 ### 3. Отримати користувача за ID (GET)
-GET http://localhost:8080/api/users/32b45fbc-d795-4c30-8be2-380724755084
+GET http://localhost:8080/api/users/b6f277af-5c05-4a19-aebc-ef7e12aa7be2
 
 
 ### 4. Повністю оновити профіль (PUT)
-PUT http://localhost:8080/api/users/32b45fbc-d795-4c30-8be2-380724755084
+PUT http://localhost:8080/api/users/b6f277af-5c05-4a19-aebc-ef7e12aa7be2
 Content-Type: application/json
 
 {
@@ -43,7 +43,7 @@ Content-Type: application/json
 
 
 ### 5. Частково оновити налаштування (PATCH)
-PATCH http://localhost:8080/api/users/32b45fbc-d795-4c30-8be2-380724755084/preferences
+PATCH http://localhost:8080/api/users/b6f277af-5c05-4a19-aebc-ef7e12aa7be2/preferences
 Content-Type: application/json
 
 {
