@@ -12,7 +12,6 @@ import java.util.UUID;
 public class UserWorkSchedule {
 
     @Id
-    @Column(name = "user_id")
     private UUID userId;
 
     // Зв'язок 1-до-1 з User. @MapsId каже, що id цього класу - це id юзера

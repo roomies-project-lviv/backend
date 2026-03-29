@@ -17,8 +17,18 @@ public class UserWorkScheduleController {
 
     // GET /api/users/{userId}/work-schedule
     @GetMapping
-    public ResponseEntity<UserWorkScheduleDto> getWorkSchedule(@PathVariable UUID userId) {
-        return ResponseEntity.ok(scheduleService.getSchedule(userId));
+    public ResponseEntity<?> getWorkSchedule(@PathVariable UUID userId) {
+        UserWorkScheduleDto schedule = scheduleService.getSchedule(userId);
+
+        // Якщо розкладу немає
+        if (schedule == null) {
+            // Повертаємо статус 404 (Не знайдено) і гарний JSON з повідомленням
+            return ResponseEntity.status(404)
+                    .body(java.util.Map.of("message", "Розклад для цього користувача ще не створено"));
+        }
+
+        // Якщо розклад є - повертаємо його зі статусом 200 (ОК)
+        return ResponseEntity.ok(schedule);
     }
 
     // PUT /api/users/{userId}/work-schedule (Створює новий або оновлює існуючий)

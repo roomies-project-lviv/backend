@@ -8,8 +8,8 @@ import com.roomies.backend.repositories.UserRepository;
 import com.roomies.backend.repositories.UserWorkScheduleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,24 +23,28 @@ public class UserWorkScheduleService {
 
     // Отримати розклад
     public UserWorkScheduleDto getSchedule(UUID userId) {
-        UserWorkSchedule schedule = scheduleRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Work schedule not found for user: " + userId));
-        return convertToDto(schedule);
+        return scheduleRepository.findById(userId)
+                .map(this::convertToDto) // Якщо знайшли - перетворюємо в DTO
+                .orElse(null);           // Якщо немає - просто повертаємо null, ніяких помилок!
     }
 
     // Створити або Оновити розклад (PUT логіка)
+    @Transactional
     public UserWorkScheduleDto updateOrCreateSchedule(UUID userId, UserWorkScheduleDto dto) {
-        // Перевіряємо, чи існує взагалі такий юзер (бо розклад не може існувати без юзера)
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
-        // Шукаємо існуючий розклад, якщо немає - створюємо новий порожній
         UserWorkSchedule schedule = scheduleRepository.findById(userId)
                 .orElse(new UserWorkSchedule());
 
-        // Оновлюємо дані
-        schedule.setUser(user); // Прив'язуємо до юзера
-        schedule.setUserId(userId);
+        // Правильно зв'язуємо об'єкти з обох боків
+        schedule.setUser(user);
+        user.setWorkSchedule(schedule);
+
+        // УВАГА: Ми більше не пишемо schedule.setUserId(userId);
+        // @MapsId автоматично витягне його з об'єкта user!
+
         schedule.setScheduleType(dto.getScheduleType());
         schedule.setBaseLocation(dto.getBaseLocation());
         schedule.setEvenPeriodLocation(dto.getEvenPeriodLocation());
@@ -55,11 +59,20 @@ public class UserWorkScheduleService {
     }
 
     // Видалити розклад
+    @Transactional
     public void deleteSchedule(UUID userId) {
-        if (!scheduleRepository.existsById(userId)) {
-            throw new RuntimeException("Work schedule not found for user: " + userId);
+        UserWorkSchedule schedule = scheduleRepository.findById(userId).orElse(null);
+
+        // Якщо розкладу і так немає, ми просто перериваємо метод (немає що видаляти)
+        if (schedule == null) {
+            return;
         }
-        scheduleRepository.deleteById(userId);
+
+        User user = schedule.getUser();
+        if (user != null) {
+            user.setWorkSchedule(null);
+        }
+        scheduleRepository.delete(schedule);
     }
 
     // --- Допоміжний метод мапінгу ---

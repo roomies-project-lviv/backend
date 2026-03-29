@@ -71,6 +71,8 @@ public class User {
     @JoinColumn(name = "pet_type_id") // Назва колонки в таблиці users
     private PetType petType;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private UserWorkSchedule workSchedule;
 
     // Гетери та Сетери
 
@@ -126,5 +128,8 @@ public class User {
 
     public PetType getPetType() { return petType; }
     public void setPetType(PetType petType) { this.petType = petType; }
+
+    public UserWorkSchedule getWorkSchedule() { return workSchedule; }
+    public void setWorkSchedule(UserWorkSchedule workSchedule) { this.workSchedule = workSchedule; }
 
 }
