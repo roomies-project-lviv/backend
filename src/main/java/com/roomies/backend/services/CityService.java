@@ -1,6 +1,7 @@
 package com.roomies.backend.services;
 
 import com.roomies.backend.dto.CityDto;
+import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.City;
 import com.roomies.backend.repositories.CityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class CityService {
     // Отримати місто за ID
     public CityDto getCityById(Integer id) {
         City city = cityRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("City not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("City not found with id: " + id));
         return convertToDto(city);
     }
 
@@ -42,7 +43,7 @@ public class CityService {
     // Оновити існуюче місто
     public CityDto updateCity(Integer id, CityDto cityDto) {
         City existingCity = cityRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("City not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("City not found with id: " + id));
 
         existingCity.setName(cityDto.getName());
         City updatedCity = cityRepository.save(existingCity);
@@ -53,7 +54,7 @@ public class CityService {
     // Видалити місто
     public void deleteCity(Integer id) {
         City existingCity = cityRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("City not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("City not found with id: " + id));
         cityRepository.delete(existingCity);
     }
 

@@ -1,6 +1,7 @@
 package com.roomies.backend.services;
 
 import com.roomies.backend.dto.PetTypeDto;
+import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.PetType;
 import com.roomies.backend.repositories.PetTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class PetTypeService {
 
     public PetTypeDto getPetTypeById(Integer id) {
         PetType petType = petTypeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pet Type not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Pet Type not found with ID: " + id));
         return convertToDto(petType);
     }
 
@@ -38,7 +39,7 @@ public class PetTypeService {
 
     public PetTypeDto updatePetType(Integer id, PetTypeDto dto) {
         PetType existing = petTypeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pet Type not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Pet Type not found with ID: " + id));
         
         existing.setName(dto.getName());
         PetType updated = petTypeRepository.save(existing);

@@ -1,6 +1,7 @@
 package com.roomies.backend.services;
 
 import com.roomies.backend.dto.FavoriteListingRequestDto;
+import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.ApartmentListing;
 import com.roomies.backend.models.FavoriteApartmentListing;
 import com.roomies.backend.models.User;
@@ -25,14 +26,14 @@ public class FavoriteApartmentListingService {
 
     public void addFavorite(FavoriteListingRequestDto requestDto) {
         if (favoriteRepository.existsByUserIdAndListingId(requestDto.getUserId(), requestDto.getListingId())) {
-            throw new RuntimeException("Оголошення вже в обраному");
+            throw new ResourceNotFoundException("Оголошення вже в обраному");
         }
 
         User user = userRepository.findById(requestDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("Користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
         
         ApartmentListing listing = listingRepository.findById(requestDto.getListingId())
-                .orElseThrow(() -> new RuntimeException("Оголошення не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"));
 
         FavoriteApartmentListing favorite = new FavoriteApartmentListing();
         favorite.setUser(user);
@@ -43,7 +44,7 @@ public class FavoriteApartmentListingService {
     public void removeFavorite(FavoriteListingRequestDto requestDto) {
         FavoriteApartmentListing favorite = favoriteRepository
                 .findByUserIdAndListingId(requestDto.getUserId(), requestDto.getListingId())
-                .orElseThrow(() -> new RuntimeException("Це оголошення не в обраному"));
+                .orElseThrow(() -> new ResourceNotFoundException("Це оголошення не в обраному"));
         
         favoriteRepository.delete(favorite);
     }

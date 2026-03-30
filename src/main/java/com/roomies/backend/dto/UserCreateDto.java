@@ -1,15 +1,29 @@
 package com.roomies.backend.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 public class UserCreateDto {
+    
+    @NotBlank(message = "Email не може бути порожнім")
+    @Email(message = "Некоректний формат email")
     private String email;
-    private String password; // Пароль отримуємо, але назад не повернемо
+
+    @NotBlank(message = "Пароль обов'язковий")
+    @Size(min = 8, message = "Пароль має містити щонайменше 8 символів")
+    private String password;
+
+    @NotBlank(message = "Ім'я не може бути порожнім")
     private String firstName;
+
+    @NotBlank(message = "Прізвище не може бути порожнім")
     private String lastName;
+
     private LocalDate birthDate;
     private String gender;
-    private Integer petTypeId;
+    // private Integer petTypeId;
 
 
     // --- Гетери та Сетери ---
@@ -31,7 +45,7 @@ public class UserCreateDto {
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
     
-    public Integer getPetTypeId() { return petTypeId; }
-    public void setPetTypeId(Integer petTypeId) { this.petTypeId = petTypeId; }
+    // public Integer getPetTypeId() { return petTypeId; }
+    // public void setPetTypeId(Integer petTypeId) { this.petTypeId = petTypeId; }
 
 }

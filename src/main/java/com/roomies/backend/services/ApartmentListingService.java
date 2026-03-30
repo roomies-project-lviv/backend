@@ -2,6 +2,7 @@ package com.roomies.backend.services;
 
 import com.roomies.backend.dto.ApartmentListingCreateDto;
 import com.roomies.backend.dto.ApartmentListingDto;
+import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.Apartment;
 import com.roomies.backend.models.ApartmentListing;
 import com.roomies.backend.models.User;
@@ -16,6 +17,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 @Service
 @Transactional
 public class ApartmentListingService {
@@ -24,23 +28,22 @@ public class ApartmentListingService {
     @Autowired private UserRepository userRepository;
     @Autowired private ApartmentRepository apartmentRepository;
 
-    public List<ApartmentListingDto> getAllActiveListings() {
-        return listingRepository.findByIsActiveTrue()
-                .stream().map(this::convertToDto).collect(Collectors.toList());
+    public Page<ApartmentListingDto> getAllActiveListings(Pageable pageable) {
+        return listingRepository.findByIsActiveTrue(pageable).map(this::convertToDto);
     }
 
     public ApartmentListingDto getListingById(UUID id) {
         ApartmentListing listing = listingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Оголошення не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"));
         return convertToDto(listing);
     }
 
     public ApartmentListingDto createListing(ApartmentListingCreateDto dto) {
         User author = userRepository.findById(dto.getAuthorId())
-                .orElseThrow(() -> new RuntimeException("Автора не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Автора не знайдено"));
         
         Apartment apartment = apartmentRepository.findById(dto.getApartmentId())
-                .orElseThrow(() -> new RuntimeException("Квартиру не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Квартиру не знайдено"));
 
         ApartmentListing listing = new ApartmentListing();
         listing.setAuthor(author);
@@ -83,7 +86,7 @@ public class ApartmentListingService {
 
     public ApartmentListingDto updateListing(UUID id, ApartmentListingCreateDto dto) {
         ApartmentListing existing = listingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Оголошення не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"));
 
         // Зазвичай при оновленні оголошення змінюють лише текст і ціну, 
         // але якщо треба, можна оновлювати й інші поля

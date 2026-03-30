@@ -1,6 +1,7 @@
 package com.roomies.backend.services;
 
 import com.roomies.backend.dto.SocialLinkDto;
+import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.User;
 import com.roomies.backend.models.UserSocialLink;
 import com.roomies.backend.repositories.UserRepository;
@@ -34,7 +35,7 @@ public class UserSocialLinkService {
 
     public SocialLinkDto addLink(UUID userId, SocialLinkDto dto) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
 
         // Створюємо нову сутність для бази
         UserSocialLink newLink = new UserSocialLink();
@@ -51,7 +52,7 @@ public class UserSocialLinkService {
 
     public SocialLinkDto updateLink(UUID linkId, SocialLinkDto dto) {
         UserSocialLink existingLink = linkRepository.findById(linkId)
-                .orElseThrow(() -> new RuntimeException("Посилання не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Посилання не знайдено"));
 
         existingLink.setPlatformName(dto.getPlatformName());
         existingLink.setUrl(dto.getUrl());

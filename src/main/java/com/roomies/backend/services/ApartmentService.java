@@ -2,6 +2,7 @@ package com.roomies.backend.services;
 
 import com.roomies.backend.dto.ApartmentCreateDto;
 import com.roomies.backend.dto.ApartmentDto;
+import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.Apartment;
 import com.roomies.backend.repositories.ApartmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class ApartmentService {
     // 2. Отримати одну за ID
     public ApartmentDto getApartmentById(UUID id) {
         Apartment appt = apartmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Оголошення не знайдено з ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено з ID: " + id));
         return convertToDto(appt);
     }
 
@@ -41,7 +42,7 @@ public class ApartmentService {
     // 4. Оновити існуючу
     public ApartmentDto updateApartment(UUID id, ApartmentCreateDto dto) {
         Apartment existing = apartmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Оголошення не знайдено з ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено з ID: " + id));
         
         updateEntityFromDto(existing, dto);
         Apartment updated = apartmentRepository.save(existing);
