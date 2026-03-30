@@ -1,0 +1,72 @@
+### ==========================================
+### ЧАСТИНА 1: ROOMMATE REQUESTS (Анкети)
+### ==========================================
+
+### 1. Створити нову анкету на пошук сусідів (POST)
+POST http://localhost:8080/api/roommate-requests
+Content-Type: application/json
+
+{
+  "authorId": "849e61f9-1b33-4759-ae45-5c8a0c6c733c",
+  "targetCityId": 2,
+  "budgetMax": 10000,
+  "moveInDate": "2026-05-01",
+  "requirements": "Шукаю спокійного сусіда, бажано айтішника. Квартира має бути зі світлою кімнатою."
+}
+
+### 2. Отримати всі активні анкети (GET)
+GET http://localhost:8080/api/roommate-requests
+
+
+### 3. Отримати конкретну анкету за ID (GET)
+GET http://localhost:8080/api/roommate-requests/2b716606-f796-49e9-9ef9-3726937eb98e
+
+
+### 4. Оновити анкету (PUT)
+PUT http://localhost:8080/api/roommate-requests/2b716606-f796-49e9-9ef9-3726937eb98e
+Content-Type: application/json
+
+{
+  "targetCityId": 1,
+  "budgetMax": 18000,
+  "moveInDate": "2026-05-15",
+  "requirements": "Оновлено: бюджет збільшено, шукаю квартиру з генератором."
+}
+
+
+### ==========================================
+### ЧАСТИНА 2: FAVORITES (Улюблені / Лайки)
+### ==========================================
+
+### 5. Додати анкету в улюблені (POST)
+POST http://localhost:8080/api/favorites/roommate-requests
+Content-Type: application/json
+
+{
+  "userId": "849e61f9-1b33-4759-ae45-5c8a0c6c733c",
+  "requestId": "2b716606-f796-49e9-9ef9-3726937eb98e"
+}
+
+
+### 6. Спробувати додати ту саму анкету ще раз (Очікуємо помилку - дублікат)
+POST http://localhost:8080/api/favorites/roommate-requests
+Content-Type: application/json
+
+{
+  "userId": "849e61f9-1b33-4759-ae45-5c8a0c6c733c",
+  "requestId": "2b716606-f796-49e9-9ef9-3726937eb98e"
+}
+
+
+### 7. Отримати список усіх "лайків" конкретного користувача (GET)
+GET http://localhost:8080/api/favorites/roommate-requests/user/849e61f9-1b33-4759-ae45-5c8a0c6c733c
+
+
+### 8. Видалити анкету з улюблених (DELETE)
+DELETE http://localhost:8080/api/favorites/roommate-requests
+Content-Type: application/json
+
+{
+  "userId": "849e61f9-1b33-4759-ae45-5c8a0c6c733c",
+  "requestId": "2b716606-f796-49e9-9ef9-3726937eb98e"
+}
