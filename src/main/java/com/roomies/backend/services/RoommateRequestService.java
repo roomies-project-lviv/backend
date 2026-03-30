@@ -2,6 +2,7 @@ package com.roomies.backend.services;
 
 import com.roomies.backend.dto.RoommateRequestCreateDto;
 import com.roomies.backend.dto.RoommateRequestDto;
+import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.City;
 import com.roomies.backend.models.RoommateRequest;
 import com.roomies.backend.models.User;
@@ -31,20 +32,20 @@ public class RoommateRequestService {
 
     public RoommateRequestDto getRequestById(UUID id) {
         RoommateRequest request = requestRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Анкету не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Анкету не знайдено"));
         return convertToDto(request);
     }
 
     public RoommateRequestDto createRequest(RoommateRequestCreateDto dto) {
         User author = userRepository.findById(dto.getAuthorId())
-                .orElseThrow(() -> new RuntimeException("Користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
 
         RoommateRequest request = new RoommateRequest();
         request.setAuthor(author);
         
         if (dto.getTargetCityId() != null) {
             City city = cityRepository.findById(dto.getTargetCityId())
-                    .orElseThrow(() -> new RuntimeException("Місто не знайдено"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
             request.setTargetCity(city);
         }
 
@@ -58,7 +59,7 @@ public class RoommateRequestService {
     
     public RoommateRequestDto updateRequest(UUID id, RoommateRequestCreateDto dto) {
         RoommateRequest existing = requestRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Анкету не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Анкету не знайдено"));
 
         existing.setBudgetMax(dto.getBudgetMax());
         existing.setMoveInDate(dto.getMoveInDate());
@@ -66,7 +67,7 @@ public class RoommateRequestService {
 
         if (dto.getTargetCityId() != null) {
             City city = cityRepository.findById(dto.getTargetCityId())
-                    .orElseThrow(() -> new RuntimeException("Місто не знайдено"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
             existing.setTargetCity(city);
         } else {
             existing.setTargetCity(null);

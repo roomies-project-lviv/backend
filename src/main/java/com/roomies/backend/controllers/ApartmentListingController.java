@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 @RestController
 @RequestMapping("/api/listings")
 public class ApartmentListingController {
@@ -19,8 +22,8 @@ public class ApartmentListingController {
     private ApartmentListingService listingService;
 
     @GetMapping
-    public ResponseEntity<List<ApartmentListingDto>> getAllActiveListings() {
-        return ResponseEntity.ok(listingService.getAllActiveListings());
+    public ResponseEntity<Page<ApartmentListingDto>> getAllActiveListings(Pageable pageable) {
+        return ResponseEntity.ok(listingService.getAllActiveListings(pageable));
     }
 
     @GetMapping("/{id}")

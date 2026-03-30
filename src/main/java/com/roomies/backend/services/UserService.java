@@ -2,6 +2,7 @@ package com.roomies.backend.services;
 
 import com.roomies.backend.dto.UserCreateDto;
 import com.roomies.backend.dto.UserDto;
+import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.exceptions.UserNotFoundException;
 import com.roomies.backend.models.User;
 import com.roomies.backend.repositories.UserRepository;
@@ -44,11 +45,11 @@ public class UserService {
         user.setBirthDate(createDto.getBirthDate());
         user.setGender(createDto.getGender());
 
-        if (createDto.getPetTypeId() != null) {
-            com.roomies.backend.models.PetType petType = petTypeRepository.findById(createDto.getPetTypeId())
-                    .orElseThrow(() -> new RuntimeException("Pet Type not found"));
-            user.setPetType(petType);
-        }
+        // if (createDto.getPetTypeId() != null) {
+        //     com.roomies.backend.models.PetType petType = petTypeRepository.findById(createDto.getPetTypeId())
+        //             .orElseThrow(() -> new ResourceNotFoundException("Pet Type not found"));
+        //     user.setPetType(petType);
+        // }
 
         User savedUser = userRepository.save(user);
         return convertToDto(savedUser); // Повертаємо безпечний DTO без пароля
@@ -69,7 +70,7 @@ public class UserService {
 
         if (updateDto.getPetTypeId() != null) {
             com.roomies.backend.models.PetType petType = petTypeRepository.findById(updateDto.getPetTypeId())
-                    .orElseThrow(() -> new RuntimeException("Pet Type not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Pet Type not found"));
             existingUser.setPetType(petType);
         } else {
             existingUser.setPetType(null); // Якщо користувач видалив тварину з профілю

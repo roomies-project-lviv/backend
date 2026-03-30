@@ -2,6 +2,7 @@ package com.roomies.backend.services;
 
 import com.roomies.backend.dto.UserReviewCreateDto;
 import com.roomies.backend.dto.UserReviewDto;
+import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.User;
 import com.roomies.backend.models.UserReview;
 import com.roomies.backend.repositories.UserRepository;
@@ -33,24 +34,24 @@ public class UserReviewService {
     public UserReviewDto createReview(UserReviewCreateDto dto) {
         // Перевірка 1: Чи не оцінює людина сама себе
         if (dto.getAuthorId().equals(dto.getTargetUserId())) {
-            throw new RuntimeException("Ви не можете залишити відгук самому собі");
+            throw new ResourceNotFoundException("Ви не можете залишити відгук самому собі");
         }
 
         // Перевірка 2: Оцінка від 1 до 5
         if (dto.getRating() < 1 || dto.getRating() > 5) {
-            throw new RuntimeException("Оцінка повинна бути від 1 до 5");
+            throw new ResourceNotFoundException("Оцінка повинна бути від 1 до 5");
         }
 
         // Перевірка 3: Чи вже був відгук
         if (reviewRepository.existsByAuthorIdAndTargetUserId(dto.getAuthorId(), dto.getTargetUserId())) {
-            throw new RuntimeException("Ви вже залишали відгук цьому користувачу. Ви можете його лише оновити.");
+            throw new ResourceNotFoundException("Ви вже залишали відгук цьому користувачу. Ви можете його лише оновити.");
         }
 
         User author = userRepository.findById(dto.getAuthorId())
-                .orElseThrow(() -> new RuntimeException("Автора не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Автора не знайдено"));
         
         User targetUser = userRepository.findById(dto.getTargetUserId())
-                .orElseThrow(() -> new RuntimeException("Користувача не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
 
         UserReview review = new UserReview();
         review.setAuthor(author);

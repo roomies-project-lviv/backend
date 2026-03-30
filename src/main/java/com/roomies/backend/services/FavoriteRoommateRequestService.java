@@ -1,6 +1,7 @@
 package com.roomies.backend.services;
 
 import com.roomies.backend.dto.FavoriteRoommateRequestDto;
+import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.FavoriteRoommateRequest;
 import com.roomies.backend.models.RoommateRequest;
 import com.roomies.backend.models.User;
@@ -32,15 +33,15 @@ public class FavoriteRoommateRequestService {
     public FavoriteRoommateRequestDto addFavorite(UUID userId, UUID requestId) {
         // Перевіряємо, чи існує юзер
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         // Перевіряємо, чи існує запит на сусіда
         RoommateRequest request = roommateRequestRepository.findById(requestId)
-                .orElseThrow(() -> new RuntimeException("RoommateRequest not found with id: " + requestId));
+                .orElseThrow(() -> new ResourceNotFoundException("RoommateRequest not found with id: " + requestId));
 
         // Перевіряємо на дублікат (чи вже лайкнуто)
         if (favoriteRepository.existsByUserIdAndRequestId(userId, requestId)) {
-            throw new RuntimeException("This request is already in favorites for user: " + userId);
+            throw new ResourceNotFoundException("This request is already in favorites for user: " + userId);
         }
 
         FavoriteRoommateRequest favorite = new FavoriteRoommateRequest();
@@ -55,7 +56,7 @@ public class FavoriteRoommateRequestService {
     @Transactional
     public void removeFavorite(UUID userId, UUID requestId) {
         if (!favoriteRepository.existsByUserIdAndRequestId(userId, requestId)) {
-            throw new RuntimeException("Favorite not found to remove");
+            throw new ResourceNotFoundException("Favorite not found to remove");
         }
         favoriteRepository.deleteByUserIdAndRequestId(userId, requestId);
     }

@@ -7,9 +7,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 @Repository
 public interface ApartmentListingRepository extends JpaRepository<ApartmentListing, UUID> {
     List<ApartmentListing> findByIsActiveTrue();
     List<ApartmentListing> findByAuthorId(UUID authorId);
-    
+
+    Page<ApartmentListing> findByIsActiveTrue(Pageable pageable); // Замінили List на Page
+
 }

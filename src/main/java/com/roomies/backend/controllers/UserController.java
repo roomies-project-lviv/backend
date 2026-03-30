@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import jakarta.validation.Valid;
+
 @RestController 
 @RequestMapping("/api/users")
 public class UserController {
@@ -30,7 +32,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserCreateDto userCreateDto) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
         UserDto createdUser = userService.createUser(userCreateDto); 
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED); 
     }

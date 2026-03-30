@@ -8,6 +8,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity // Вказує Spring Boot, що цей клас пов'язаний з базою даних
 @Table(name = "users") // Вказуємо точну назву твоєї таблиці
 @DynamicInsert
@@ -64,8 +67,6 @@ public class User {
     @Column(name = "lifestyle_flags", columnDefinition = "bit(8)")
     private String lifestyleFlags;
 
-    // (Поки що я пропустив pet_type_id та lifestyle_flags, ми додамо їх наступним кроком, коли налаштуємо зв'язки з іншими таблицями)
-
     // Зв'язок із таблицею pet_types
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_type_id") // Назва колонки в таблиці users
@@ -73,6 +74,14 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private UserWorkSchedule workSchedule;
+
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserSocialLink> socialLinks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ApartmentListing> apartmentListings = new ArrayList<>();
+    
 
     // Гетери та Сетери
 
@@ -131,5 +140,11 @@ public class User {
 
     public UserWorkSchedule getWorkSchedule() { return workSchedule; }
     public void setWorkSchedule(UserWorkSchedule workSchedule) { this.workSchedule = workSchedule; }
+
+    public List<UserSocialLink> getSocialLinks() { return socialLinks; }
+    public void setSocialLinks(List<UserSocialLink> socialLinks) { this.socialLinks = socialLinks; }
+
+    public List<ApartmentListing> getApartmentListings() { return apartmentListings; }
+    public void setApartmentListings(List<ApartmentListing> apartmentListings) { this.apartmentListings = apartmentListings; }
 
 }
