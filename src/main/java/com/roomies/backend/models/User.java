@@ -67,6 +67,9 @@ public class User {
     @Column(name = "lifestyle_flags", columnDefinition = "bit(8)")
     private String lifestyleFlags;
 
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
     // Зв'язок із таблицею pet_types
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_type_id") // Назва колонки в таблиці users
@@ -147,4 +150,6 @@ public class User {
     public List<ApartmentListing> getApartmentListings() { return apartmentListings; }
     public void setApartmentListings(List<ApartmentListing> apartmentListings) { this.apartmentListings = apartmentListings; }
 
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) {this.phoneNumber = phoneNumber; }
 }

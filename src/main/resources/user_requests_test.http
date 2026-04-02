@@ -13,6 +13,7 @@ Content-Type: application/json
   "occupation": "student",
   "sleepSchedule": "early_bird",
   "guestsFrequency": "rarely",
+  "phoneNumber": "+380991234567",
   "noiseTolerance": "low",
   "cleanlinessLevel": "high",
   "dietaryPreferences": "vegetarian"
@@ -36,6 +37,7 @@ Content-Type: application/json
   "lastName": "НеБойко",
   "birthDate": "2000-08-22",
   "gender": "male",
+  "phoneNumber": "+380679876543",
   "bio": "Студент 2-го курсу. Багато вчуся, тому дуже ціную тишу і спокій. Без шкідливих звичок.",
   "occupation": "student",
   "avatarUrl": "https://example.com/my-new-avatar.png"
