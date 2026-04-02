@@ -6,6 +6,7 @@ import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.exceptions.UserNotFoundException;
 import com.roomies.backend.models.User;
 import com.roomies.backend.repositories.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired 
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private com.roomies.backend.repositories.PetTypeRepository petTypeRepository;
@@ -37,19 +41,18 @@ public class UserService {
     }
 
     public UserDto createUser(UserCreateDto createDto) {
+        if (userRepository.existsByEmail(createDto.getEmail())) {
+            throw new RuntimeException("Користувач з таким email вже існує");
+        }
+
         User user = new User();
+        user.setPassword(passwordEncoder.encode(createDto.getPassword()));
+
         user.setEmail(createDto.getEmail());
-        user.setPassword(createDto.getPassword()); // У майбутньому ми додамо сюди хешування BCrypt!
         user.setFirstName(createDto.getFirstName());
         user.setLastName(createDto.getLastName());
         user.setBirthDate(createDto.getBirthDate());
         user.setGender(createDto.getGender());
-
-        // if (createDto.getPetTypeId() != null) {
-        //     com.roomies.backend.models.PetType petType = petTypeRepository.findById(createDto.getPetTypeId())
-        //             .orElseThrow(() -> new ResourceNotFoundException("Pet Type not found"));
-        //     user.setPetType(petType);
-        // }
 
         User savedUser = userRepository.save(user);
         return convertToDto(savedUser); // Повертаємо безпечний DTO без пароля

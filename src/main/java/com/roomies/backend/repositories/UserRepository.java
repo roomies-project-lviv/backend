@@ -14,4 +14,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     // Він шукатиме користувача за його email
     Optional<User> findByEmail(String email);
 
+    // Перевіряє, чи існує користувач з таким email
+    boolean existsByEmail(String email);
+
 }
