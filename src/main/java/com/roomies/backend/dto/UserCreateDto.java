@@ -23,7 +23,6 @@ public class UserCreateDto {
 
     private LocalDate birthDate;
     private String gender;
-    // private Integer petTypeId;
 
 
     // --- Гетери та Сетери ---
@@ -44,8 +43,5 @@ public class UserCreateDto {
 
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
-    
-    // public Integer getPetTypeId() { return petTypeId; }
-    // public void setPetTypeId(Integer petTypeId) { this.petTypeId = petTypeId; }
 
 }

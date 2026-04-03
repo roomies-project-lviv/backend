@@ -9,6 +9,8 @@ import com.roomies.backend.models.User;
 import com.roomies.backend.repositories.CityRepository;
 import com.roomies.backend.repositories.RoommateRequestRepository;
 import com.roomies.backend.repositories.UserRepository;
+import com.roomies.backend.security.SecurityUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,8 @@ public class RoommateRequestService {
     @Autowired private UserRepository userRepository;
     @Autowired private CityRepository cityRepository;
 
+    @Autowired private SecurityUtils securityUtils;
+
     public List<RoommateRequestDto> getAllActiveRequests() {
         return requestRepository.findByIsActiveTrue()
                 .stream().map(this::convertToDto).collect(Collectors.toList());
@@ -37,8 +41,7 @@ public class RoommateRequestService {
     }
 
     public RoommateRequestDto createRequest(RoommateRequestCreateDto dto) {
-        User author = userRepository.findById(dto.getAuthorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
+        User author = securityUtils.getCurrentUser();
 
         RoommateRequest request = new RoommateRequest();
         request.setAuthor(author);

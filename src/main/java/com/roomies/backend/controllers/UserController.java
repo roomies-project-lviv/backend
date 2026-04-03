@@ -21,6 +21,25 @@ public class UserController {
     @Autowired 
     private UserService userService;
 
+    // Отримати дані про себе
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getMyProfile() {
+        return ResponseEntity.ok(userService.getMyProfile());
+    }
+
+    // Оновити свій профіль
+    @PutMapping("/me")
+    public ResponseEntity<UserDto> updateMyProfile(@RequestBody UserDto userDetails) {
+        return ResponseEntity.ok(userService.updateMyProfile(userDetails));
+    }
+
+    // Оновити свої преференції (прапорці тощо)
+    @PatchMapping("/me/preferences")
+    public ResponseEntity<UserDto> updateMyPreferences(@RequestBody Map<String, Object> updates) {
+        return ResponseEntity.ok(userService.updateMyPreferences(updates));
+    }
+
+/*
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
@@ -52,6 +71,6 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build(); 
     }
-
+*/
     
 }

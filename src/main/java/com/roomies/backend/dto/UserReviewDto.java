@@ -14,7 +14,7 @@ public class UserReviewDto {
     private String authorFirstName;
     private String authorAvatarUrl;
 
-    // Кому залишили (іноді потрібно для розуміння контексту)
+    // Кому залишили 
     private UUID targetUserId;
 
     // --- Гетери та Сетери ---

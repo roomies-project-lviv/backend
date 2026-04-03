@@ -2,6 +2,7 @@ package com.roomies.backend.controllers;
 
 import com.roomies.backend.dto.FavoriteRoommateRequestCreateDto;
 import com.roomies.backend.dto.FavoriteRoommateRequestDto;
+import com.roomies.backend.security.SecurityUtils;
 import com.roomies.backend.services.FavoriteRoommateRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,16 +18,17 @@ public class FavoriteRoommateRequestController {
 
     @Autowired
     private FavoriteRoommateRequestService favoriteService;
+    @Autowired private SecurityUtils securityUtils;
 
     @PostMapping
     public ResponseEntity<FavoriteRoommateRequestDto> addFavorite(@RequestBody FavoriteRoommateRequestCreateDto actionDto) {
-        FavoriteRoommateRequestDto result = favoriteService.addFavorite(actionDto.getUserId(), actionDto.getRequestId());
+        FavoriteRoommateRequestDto result = favoriteService.addFavorite(securityUtils.getCurrentUser().getId(), actionDto.getRequestId());
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     @DeleteMapping
     public ResponseEntity<Void> removeFavorite(@RequestBody FavoriteRoommateRequestCreateDto actionDto) {
-        favoriteService.removeFavorite(actionDto.getUserId(), actionDto.getRequestId());
+        favoriteService.removeFavorite(securityUtils.getCurrentUser().getId(), actionDto.getRequestId());
         return ResponseEntity.noContent().build();
     }
 

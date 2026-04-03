@@ -45,8 +45,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 3. Відрізаємо слово "Bearer " (7 символів), щоб отримати чистий токен
         jwt = authHeader.substring(7);
         
-        // 4. Дістаємо email з токена
-        userEmail = jwtService.extractUsername(jwt);
+        // Блок try-catch
+        try {
+            // 4. Дістаємо email з токена
+            userEmail = jwtService.extractUsername(jwt);
+        } catch (Exception e) {
+            // Якщо токен недійсний, прострочений або пошкоджений - пропускаємо запит далі без авторизації
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // 5. Якщо email є, і користувач ще не авторизований у поточному контексті
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {

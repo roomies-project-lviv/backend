@@ -4,8 +4,8 @@ import com.roomies.backend.dto.SocialLinkDto;
 import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.User;
 import com.roomies.backend.models.UserSocialLink;
-import com.roomies.backend.repositories.UserRepository;
 import com.roomies.backend.repositories.UserSocialLinkRepository;
+import com.roomies.backend.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,61 +13,64 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Service // Кажемо Spring, що це наш шар бізнес-логіки
+@Service
 public class UserSocialLinkService {
 
-    @Autowired
-    private UserSocialLinkRepository linkRepository;
+    @Autowired private UserSocialLinkRepository linkRepository;
+    @Autowired private SecurityUtils securityUtils; // <--- Додали SecurityUtils
 
-    @Autowired
-    private UserRepository userRepository;
-
-    // --- МЕТОДИ ДЛЯ РОБОТИ З БАЗОЮ ТА DTO ---
-
-    public List<SocialLinkDto> getUserLinks(UUID userId) {
-        List<UserSocialLink> links = linkRepository.findByUserId(userId);
-        
-        // Перетворюємо список Entity на список DTO
-        return links.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+    // Отримати СВОЇ лінки
+    public List<SocialLinkDto> getMyLinks() {
+        User me = securityUtils.getCurrentUser();
+        return linkRepository.findByUserId(me.getId())
+                .stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
-    public SocialLinkDto addLink(UUID userId, SocialLinkDto dto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
+    // Додати лінк СОБІ
+    public SocialLinkDto addMyLink(SocialLinkDto dto) {
+        User me = securityUtils.getCurrentUser();
 
-        // Створюємо нову сутність для бази
         UserSocialLink newLink = new UserSocialLink();
         newLink.setPlatformName(dto.getPlatformName());
         newLink.setUrl(dto.getUrl());
-        newLink.setUser(user);
+        newLink.setUser(me); // Прив'язуємо до того, хто робить запит
 
-        // Зберігаємо в базу
-        UserSocialLink savedLink = linkRepository.save(newLink);
-
-        // Повертаємо фронтенду чистий DTO
-        return convertToDto(savedLink);
+        return convertToDto(linkRepository.save(newLink));
     }
 
-    public SocialLinkDto updateLink(UUID linkId, SocialLinkDto dto) {
+    // Оновити СВІЙ лінк
+    public SocialLinkDto updateMyLink(UUID linkId, SocialLinkDto dto) {
+        User me = securityUtils.getCurrentUser();
         UserSocialLink existingLink = linkRepository.findById(linkId)
                 .orElseThrow(() -> new ResourceNotFoundException("Посилання не знайдено"));
+
+        // ЗАХИСТ ВІД IDOR: Перевіряємо, чи цей лінк належить поточному юзеру
+        if (!existingLink.getUser().getId().equals(me.getId())) {
+            throw new RuntimeException("Ви не маєте права редагувати це посилання");
+        }
 
         existingLink.setPlatformName(dto.getPlatformName());
         existingLink.setUrl(dto.getUrl());
 
-        UserSocialLink updatedLink = linkRepository.save(existingLink);
-        return convertToDto(updatedLink);
+        return convertToDto(linkRepository.save(existingLink));
     }
 
-    public void deleteLink(UUID linkId) {
-        linkRepository.deleteById(linkId);
+    // Видалити СВІЙ лінк
+    public void deleteMyLink(UUID linkId) {
+        User me = securityUtils.getCurrentUser();
+        UserSocialLink existingLink = linkRepository.findById(linkId)
+                .orElseThrow(() -> new ResourceNotFoundException("Посилання не знайдено"));
+
+        if (!existingLink.getUser().getId().equals(me.getId())) {
+            throw new RuntimeException("Ви не маєте права видаляти це посилання");
+        }
+
+        linkRepository.delete(existingLink);
     }
 
-    // --- ДОПОМІЖНИЙ МЕТОД (ПЕРЕКЛАДАЧ) ---
     private SocialLinkDto convertToDto(UserSocialLink entity) {
         return new SocialLinkDto(entity.getId(), entity.getPlatformName(), entity.getUrl());
     }
+
     
 }

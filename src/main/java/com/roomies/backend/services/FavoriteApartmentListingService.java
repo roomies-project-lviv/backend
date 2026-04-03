@@ -8,6 +8,8 @@ import com.roomies.backend.models.User;
 import com.roomies.backend.repositories.ApartmentListingRepository;
 import com.roomies.backend.repositories.FavoriteApartmentListingRepository;
 import com.roomies.backend.repositories.UserRepository;
+import com.roomies.backend.security.SecurityUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +26,14 @@ public class FavoriteApartmentListingService {
     @Autowired private UserRepository userRepository;
     @Autowired private ApartmentListingRepository listingRepository;
 
+    @Autowired private SecurityUtils securityUtils;
+
     public void addFavorite(FavoriteListingRequestDto requestDto) {
-        if (favoriteRepository.existsByUserIdAndListingId(requestDto.getUserId(), requestDto.getListingId())) {
+        User user = securityUtils.getCurrentUser();
+
+        if (favoriteRepository.existsByUserIdAndListingId(user.getId(), requestDto.getListingId())) {
             throw new ResourceNotFoundException("Оголошення вже в обраному");
         }
-
-        User user = userRepository.findById(requestDto.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
         
         ApartmentListing listing = listingRepository.findById(requestDto.getListingId())
                 .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"));
@@ -43,7 +46,7 @@ public class FavoriteApartmentListingService {
 
     public void removeFavorite(FavoriteListingRequestDto requestDto) {
         FavoriteApartmentListing favorite = favoriteRepository
-                .findByUserIdAndListingId(requestDto.getUserId(), requestDto.getListingId())
+                .findByUserIdAndListingId(securityUtils.getCurrentUser().getId(), requestDto.getListingId())
                 .orElseThrow(() -> new ResourceNotFoundException("Це оголошення не в обраному"));
         
         favoriteRepository.delete(favorite);
