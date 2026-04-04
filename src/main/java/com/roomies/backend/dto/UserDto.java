@@ -21,6 +21,7 @@ public class UserDto {
     private String bio;
     private LocalDateTime createdAt;
     private String lifestyleFlags;
+    private String phoneNumber;
 
     // --- Гетери та Сетери ---
     public UUID getId() { return id; }
@@ -96,5 +97,7 @@ public class UserDto {
     public String getPetTypeName() { return petTypeName; }
     public void setPetTypeName(String petTypeName) { this.petTypeName = petTypeName; }
 
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
 }
