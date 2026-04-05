@@ -2,6 +2,7 @@ package com.roomies.backend.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
@@ -20,6 +21,13 @@ public class UserCreateDto {
 
     @NotBlank(message = "Прізвище не може бути порожнім")
     private String lastName;
+
+    @NotBlank(message = "Номер телефону обов'язковий")
+    @Pattern(
+            regexp = "^\\+380\\d{9}$",
+            message = "Номер телефону повинен бути у форматі +380XXXXXXXXX"
+    )
+    private String phoneNumber;
 
     private LocalDate birthDate;
     private String gender;
@@ -44,4 +52,6 @@ public class UserCreateDto {
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
 
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 }

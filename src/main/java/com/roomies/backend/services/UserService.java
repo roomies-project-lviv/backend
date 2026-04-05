@@ -68,7 +68,7 @@ public class UserService {
 
         User user = new User();
         user.setPassword(passwordEncoder.encode(createDto.getPassword()));
-
+        user.setPhoneNumber(createDto.getPhoneNumber());
         user.setEmail(createDto.getEmail());
         user.setFirstName(createDto.getFirstName());
         user.setLastName(createDto.getLastName());
@@ -91,6 +91,7 @@ public class UserService {
         existingUser.setAvatarUrl(updateDto.getAvatarUrl());
         existingUser.setOccupation(updateDto.getOccupation());
         existingUser.setBio(updateDto.getBio());
+        existingUser.setPhoneNumber(updateDto.getPhoneNumber());
 
         if (updateDto.getPetTypeId() != null) {
             com.roomies.backend.models.PetType petType = petTypeRepository.findById(updateDto.getPetTypeId())
@@ -172,6 +173,7 @@ public class UserService {
         dto.setDietaryPreferences(user.getDietaryPreferences());
         dto.setBio(user.getBio());
         dto.setCreatedAt(user.getCreatedAt());
+        dto.setPhoneNumber(user.getPhoneNumber());
 
         // --- ДОДАЄМО ОБРОБКУ ТВАРИНИ ---
         if (user.getPetType() != null) {
