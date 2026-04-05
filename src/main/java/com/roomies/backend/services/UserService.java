@@ -6,6 +6,8 @@ import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.exceptions.UserNotFoundException;
 import com.roomies.backend.models.User;
 import com.roomies.backend.repositories.UserRepository;
+import com.roomies.backend.security.SecurityUtils;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,13 +22,32 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-
     @Autowired 
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private com.roomies.backend.repositories.PetTypeRepository petTypeRepository;
 
+    @Autowired
+    private SecurityUtils securityUtils;
+
+    // Отримати СВІЙ профіль
+    public UserDto getMyProfile() {
+        User me = securityUtils.getCurrentUser();
+        return convertToDto(me);
+    }
+
+    // Оновити СВІЙ профіль
+    public UserDto updateMyProfile(UserDto updateDto) {
+        User me = securityUtils.getCurrentUser();
+        return updateUserProfile(me.getId(), updateDto); // Викликаємо існуючий метод
+    }
+
+    // Оновити СВОЇ налаштування
+    public UserDto updateMyPreferences(Map<String, Object> updates) {
+        User me = securityUtils.getCurrentUser();
+        return updateUserPreferences(me.getId(), updates); // Викликаємо існуючий метод
+    }
+    
     public List<UserDto> getAllUsers() {
         return userRepository.findAll()
                 .stream()

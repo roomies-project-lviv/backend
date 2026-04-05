@@ -2,6 +2,7 @@ package com.roomies.backend.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,5 +34,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Некоректний формат ID"));
     }
 
+    // НОВИЙ БЛОК:
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleBadCredentials(BadCredentialsException ex) {
+        // Повертаємо 401 статус і чіткий текст помилки
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", "Невірний email або пароль"));
+    }
     
+    // (Опціонально) Якщо раптом юзера взагалі немає в базі, Spring іноді кидає цю помилку:
+    @ExceptionHandler(org.springframework.security.authentication.InternalAuthenticationServiceException.class)
+    public ResponseEntity<Map<String, String>> handleInternalAuthError(Exception ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", "Неіснуючий email або пароль"));
+    }
+    
+
 }

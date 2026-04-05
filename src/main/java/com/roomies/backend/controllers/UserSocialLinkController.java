@@ -9,29 +9,30 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/social-links") // Змінили базовий шлях
 public class UserSocialLinkController {
 
-    @Autowired
-    private UserSocialLinkService linkService;
+    @Autowired private UserSocialLinkService linkService;
 
-    @GetMapping("/users/{userId}/social-links")
-    public List<SocialLinkDto> getUserLinks(@PathVariable UUID userId) {
-        return linkService.getUserLinks(userId);
+    @GetMapping
+    public List<SocialLinkDto> getMyLinks() {
+        return linkService.getMyLinks(); // Більше не передаємо ID з URL
     }
 
-    @PostMapping("/users/{userId}/social-links")
-    public SocialLinkDto addLink(@PathVariable UUID userId, @RequestBody SocialLinkDto newLinkDto) {
-        return linkService.addLink(userId, newLinkDto);
+    @PostMapping
+    public SocialLinkDto addMyLink(@RequestBody SocialLinkDto newLinkDto) {
+        return linkService.addMyLink(newLinkDto);
     }
 
-    @PutMapping("/social-links/{linkId}")
-    public SocialLinkDto updateLink(@PathVariable UUID linkId, @RequestBody SocialLinkDto updatedDataDto) {
-        return linkService.updateLink(linkId, updatedDataDto);
+    @PutMapping("/{linkId}")
+    public SocialLinkDto updateMyLink(@PathVariable UUID linkId, @RequestBody SocialLinkDto updatedDataDto) {
+        return linkService.updateMyLink(linkId, updatedDataDto);
     }
 
-    @DeleteMapping("/social-links/{linkId}")
-    public void deleteLink(@PathVariable UUID linkId) {
-        linkService.deleteLink(linkId);
+    @DeleteMapping("/{linkId}")
+    public void deleteMyLink(@PathVariable UUID linkId) {
+        linkService.deleteMyLink(linkId);
     }
+
+    
 }

@@ -9,6 +9,8 @@ import com.roomies.backend.models.User;
 import com.roomies.backend.repositories.ApartmentListingRepository;
 import com.roomies.backend.repositories.ApartmentRepository;
 import com.roomies.backend.repositories.UserRepository;
+import com.roomies.backend.security.SecurityUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,8 @@ public class ApartmentListingService {
     @Autowired private UserRepository userRepository;
     @Autowired private ApartmentRepository apartmentRepository;
 
+    @Autowired private SecurityUtils securityUtils;
+
     public Page<ApartmentListingDto> getAllActiveListings(Pageable pageable) {
         return listingRepository.findByIsActiveTrue(pageable).map(this::convertToDto);
     }
@@ -39,8 +43,7 @@ public class ApartmentListingService {
     }
 
     public ApartmentListingDto createListing(ApartmentListingCreateDto dto) {
-        User author = userRepository.findById(dto.getAuthorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Автора не знайдено"));
+        User author = securityUtils.getCurrentUser();
         
         Apartment apartment = apartmentRepository.findById(dto.getApartmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Квартиру не знайдено"));

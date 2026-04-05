@@ -7,6 +7,8 @@ import com.roomies.backend.models.User;
 import com.roomies.backend.models.UserReview;
 import com.roomies.backend.repositories.UserRepository;
 import com.roomies.backend.repositories.UserReviewRepository;
+import com.roomies.backend.security.SecurityUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,8 @@ public class UserReviewService {
     @Autowired private UserReviewRepository reviewRepository;
     @Autowired private UserRepository userRepository;
 
+    @Autowired private SecurityUtils securityUtils;
+
     public List<UserReviewDto> getReviewsForUser(UUID targetUserId) {
         return reviewRepository.findByTargetUserIdOrderByCreatedAtDesc(targetUserId)
                 .stream().map(this::convertToDto).collect(Collectors.toList());
@@ -32,23 +36,23 @@ public class UserReviewService {
     }
 
     public UserReviewDto createReview(UserReviewCreateDto dto) {
-        // Перевірка 1: Чи не оцінює людина сама себе
-        if (dto.getAuthorId().equals(dto.getTargetUserId())) {
-            throw new ResourceNotFoundException("Ви не можете залишити відгук самому собі");
-        }
+        // 1. ОДРАЗУ отримуємо поточного автора з токена
+        User author = securityUtils.getCurrentUser();
 
-        // Перевірка 2: Оцінка від 1 до 5
+        // 2. Перевірка: Оцінка від 1 до 5
         if (dto.getRating() < 1 || dto.getRating() > 5) {
             throw new ResourceNotFoundException("Оцінка повинна бути від 1 до 5");
         }
 
-        // Перевірка 3: Чи вже був відгук
-        if (reviewRepository.existsByAuthorIdAndTargetUserId(dto.getAuthorId(), dto.getTargetUserId())) {
-            throw new ResourceNotFoundException("Ви вже залишали відгук цьому користувачу. Ви можете його лише оновити.");
+        // 3. Чи не оцінює людина сама себе
+        if (author.getId().equals(dto.getTargetUserId())) {
+            throw new ResourceNotFoundException("Ви не можете залишити відгук самому собі");
         }
 
-        User author = userRepository.findById(dto.getAuthorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Автора не знайдено"));
+        // 4. ТУТ ВИПРАВЛЕНО: Використовуємо author.getId() замість dto.getAuthorId()
+        if (reviewRepository.existsByAuthorIdAndTargetUserId(author.getId(), dto.getTargetUserId())) {
+            throw new ResourceNotFoundException("Ви вже залишали відгук цьому користувачу. Ви можете його лише оновити.");
+        }
         
         User targetUser = userRepository.findById(dto.getTargetUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));

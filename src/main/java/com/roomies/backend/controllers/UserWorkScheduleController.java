@@ -6,44 +6,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
-@RequestMapping("/api/users/{userId}/work-schedule")
+@RequestMapping("/api/work-schedule") // Чистий, безпечний шлях
 public class UserWorkScheduleController {
 
-    @Autowired
-    private UserWorkScheduleService scheduleService;
+    @Autowired private UserWorkScheduleService scheduleService;
 
-    // GET /api/users/{userId}/work-schedule
     @GetMapping
-    public ResponseEntity<?> getWorkSchedule(@PathVariable UUID userId) {
-        UserWorkScheduleDto schedule = scheduleService.getSchedule(userId);
-
-        // Якщо розкладу немає
+    public ResponseEntity<?> getMyWorkSchedule() {
+        UserWorkScheduleDto schedule = scheduleService.getMySchedule();
         if (schedule == null) {
-            // Повертаємо статус 404 (Не знайдено) і гарний JSON з повідомленням
             return ResponseEntity.status(404)
-                    .body(java.util.Map.of("message", "Розклад для цього користувача ще не створено"));
+                    .body(java.util.Map.of("message", "Розклад ще не створено"));
         }
-
-        // Якщо розклад є - повертаємо його зі статусом 200 (ОК)
         return ResponseEntity.ok(schedule);
     }
 
-    // PUT /api/users/{userId}/work-schedule (Створює новий або оновлює існуючий)
     @PutMapping
-    public ResponseEntity<UserWorkScheduleDto> updateWorkSchedule(
-            @PathVariable UUID userId,
-            @RequestBody UserWorkScheduleDto scheduleDto) {
-
-        return ResponseEntity.ok(scheduleService.updateOrCreateSchedule(userId, scheduleDto));
+    public ResponseEntity<UserWorkScheduleDto> updateMyWorkSchedule(@RequestBody UserWorkScheduleDto scheduleDto) {
+        return ResponseEntity.ok(scheduleService.updateOrCreateMySchedule(scheduleDto));
     }
 
-    // DELETE /api/users/{userId}/work-schedule
     @DeleteMapping
-    public ResponseEntity<Void> deleteWorkSchedule(@PathVariable UUID userId) {
-        scheduleService.deleteSchedule(userId);
+    public ResponseEntity<Void> deleteMyWorkSchedule() {
+        scheduleService.deleteMySchedule();
         return ResponseEntity.noContent().build();
     }
+
+    
 }

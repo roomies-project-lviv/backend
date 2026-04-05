@@ -8,6 +8,8 @@ import com.roomies.backend.models.User;
 import com.roomies.backend.repositories.FavoriteRoommateRequestRepository;
 import com.roomies.backend.repositories.RoommateRequestRepository;
 import com.roomies.backend.repositories.UserRepository;
+import com.roomies.backend.security.SecurityUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,19 +23,17 @@ public class FavoriteRoommateRequestService {
 
     @Autowired
     private FavoriteRoommateRequestRepository favoriteRepository;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private RoommateRequestRepository roommateRequestRepository;
+
+    @Autowired private SecurityUtils securityUtils;
 
     // Logic 1: Add to favorites
     @Transactional
     public FavoriteRoommateRequestDto addFavorite(UUID userId, UUID requestId) {
-        // Перевіряємо, чи існує юзер
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User user = securityUtils.getCurrentUser();
 
         // Перевіряємо, чи існує запит на сусіда
         RoommateRequest request = roommateRequestRepository.findById(requestId)

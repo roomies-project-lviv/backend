@@ -1,10 +1,12 @@
 package com.roomies.backend.config;
 
 import com.roomies.backend.security.CustomUserDetailsService;
-import com.roomies.backend.security.JwtAuthenticationFilter; // <--- ДОДАЙ ІМПОРТ
+import com.roomies.backend.security.JwtAuthenticationEntryPoint;
+import com.roomies.backend.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -26,7 +28,10 @@ public class SecurityConfig {
     private CustomUserDetailsService userDetailsService;
 
     @Autowired
-    private JwtAuthenticationFilter jwtAuthFilter; // <--- ІН'ЄКЦІЯ НАШОГО ФІЛЬТРА
+    private JwtAuthenticationFilter jwtAuthFilter; 
+
+    @Autowired
+    private JwtAuthenticationEntryPoint jwtAuthEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -51,19 +56,19 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(Customizer.withDefaults())
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
-                // Дозволяємо логін без токена
-                .requestMatchers("/api/auth/**").permitAll() 
-                // ТАКОЖ дозволяємо реєстрацію юзера без токена
-                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/users").permitAll() 
-                
-                // Опціонально: можна дозволити всім дивитися оголошення (GET)
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/listings/**").permitAll()
-                
-                // ВСІ ІНШІ запити (створення квартири, відгуку, тощо) вимагають токен!
-                .anyRequest().authenticated() 
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/listings/**").permitAll()
+
+                // Дозволяємо внутрішні помилки та OPTIONS запити від Angular
+                .requestMatchers("/error").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                .anyRequest().authenticated()
             )
             // ДОДАЄМО НАШ ФІЛЬТР ПЕРЕД СТАНДАРТНИМ ФІЛЬТРОМ SPRING
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
