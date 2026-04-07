@@ -1,6 +1,7 @@
 ### 1. Створити новий розклад для користувача (PUT)
 PUT http://localhost:8080/api/users/b6f277af-5c05-4a19-aebc-ef7e12aa7be2/work-schedule
 Content-Type: application/json
+Authorization: Bearer {{auth_token}}
 
 {
   "scheduleType": "Гібридний",
@@ -13,14 +14,14 @@ Content-Type: application/json
   "shiftRestDays": 2
 }
 
-
 ### 2. Отримати розклад користувача (GET)
 GET http://localhost:8080/api/users/b6f277af-5c05-4a19-aebc-ef7e12aa7be2/work-schedule
-
+Authorization: Bearer {{auth_token}}
 
 ### 3. Оновити розклад (той самий PUT запит, але з новими даними)
 PUT http://localhost:8080/api/users/b6f277af-5c05-4a19-aebc-ef7e12aa7be2/work-schedule
 Content-Type: application/json
+Authorization: Bearer {{auth_token}}
 
 {
   "scheduleType": "Віддалена",
@@ -33,6 +34,6 @@ Content-Type: application/json
   "shiftRestDays": 0
 }
 
-
 ### 4. Видалити розклад (DELETE)
 DELETE http://localhost:8080/api/users/b6f277af-5c05-4a19-aebc-ef7e12aa7be2/work-schedule
+Authorization: Bearer {{auth_token}}
