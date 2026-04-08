@@ -2,6 +2,7 @@ package com.roomies.backend.services;
 
 import com.roomies.backend.dto.UserCreateDto;
 import com.roomies.backend.dto.UserDto;
+import com.roomies.backend.exceptions.EmailAlreadyExistsException;
 import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.exceptions.UserNotFoundException;
 import com.roomies.backend.models.User;
@@ -63,7 +64,7 @@ public class UserService {
 
     public UserDto createUser(UserCreateDto createDto) {
         if (userRepository.existsByEmail(createDto.getEmail())) {
-            throw new RuntimeException("Користувач з таким email вже існує");
+            throw new EmailAlreadyExistsException("Користувач з таким email вже існує");
         }
 
         User user = new User();

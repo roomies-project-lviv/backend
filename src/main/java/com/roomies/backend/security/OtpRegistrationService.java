@@ -1,6 +1,9 @@
 package com.roomies.backend.security;
 
 import com.roomies.backend.dto.UserCreateDto;
+import com.roomies.backend.exceptions.InvalidOtpException;
+import com.roomies.backend.exceptions.RateLimitException;
+
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Map;
@@ -29,7 +32,7 @@ public class OtpRegistrationService {
         if (cache.containsKey(email)) {
             Instant lastSent = cache.get(email).lastSentTime;
             if (Instant.now().isBefore(lastSent.plusSeconds(30))) {
-                throw new RuntimeException("Зачекайте 30 секунд перед наступною відправкою коду");
+                throw new RateLimitException("Зачекайте 30 секунд перед наступною відправкою коду");
             }
         }
 
@@ -49,13 +52,13 @@ public class OtpRegistrationService {
     public UserCreateDto verifyOtp(String email, String otpCode) {
         OtpData data = cache.get(email);
 
-        if (data == null) throw new RuntimeException("Сесія реєстрації не знайдена або протухла");
+        if (data == null) throw new InvalidOtpException("Сесія не знайдена або протухла");
         if (Instant.now().isAfter(data.expiryTime)) {
             cache.remove(email);
-            throw new RuntimeException("Код прострочений. Запросіть новий.");
+            throw new InvalidOtpException("Код прострочений. Запросіть новий.");
         }
         if (!data.otpCode.equals(otpCode)) {
-            throw new RuntimeException("Неправильний код");
+            throw new InvalidOtpException("Неправильний код підтвердження");
         }
 
         // Код правильний! Віддаємо DTO і видаляємо з кешу

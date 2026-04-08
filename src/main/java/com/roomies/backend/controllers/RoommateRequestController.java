@@ -2,11 +2,16 @@ package com.roomies.backend.controllers;
 
 import com.roomies.backend.dto.RoommateRequestCreateDto;
 import com.roomies.backend.dto.RoommateRequestDto;
+import com.roomies.backend.dto.filters.RoommateFilterDto;
 import com.roomies.backend.services.RoommateRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.roomies.backend.dto.filters.RoommateFilterDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +26,15 @@ public class RoommateRequestController {
     @GetMapping
     public ResponseEntity<List<RoommateRequestDto>> getAllActiveRequests() {
         return ResponseEntity.ok(requestService.getAllActiveRequests());
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<Page<RoommateRequestDto>> searchRequests(
+            @RequestBody(required = false) RoommateFilterDto filterDto, 
+            Pageable pageable) {
+        
+        if (filterDto == null) filterDto = new RoommateFilterDto();
+        return ResponseEntity.ok(requestService.getAllActiveRequests(filterDto, pageable));
     }
 
     @GetMapping("/{id}")

@@ -2,6 +2,7 @@ package com.roomies.backend.controllers;
 
 import com.roomies.backend.dto.ApartmentListingCreateDto;
 import com.roomies.backend.dto.ApartmentListingDto;
+import com.roomies.backend.dto.filters.ListingFilterDto;
 import com.roomies.backend.services.ApartmentListingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,16 @@ public class ApartmentListingController {
     @GetMapping
     public ResponseEntity<Page<ApartmentListingDto>> getAllActiveListings(Pageable pageable) {
         return ResponseEntity.ok(listingService.getAllActiveListings(pageable));
+    }
+
+    // Замінюємо існуючий GET метод на POST для передачі фільтрів у тілі запиту
+    @PostMapping("/search")
+    public ResponseEntity<Page<ApartmentListingDto>> searchListings(
+            @RequestBody(required = false) ListingFilterDto filterDto, 
+            Pageable pageable) {
+        
+        if (filterDto == null) filterDto = new ListingFilterDto(); // Якщо без фільтрів
+        return ResponseEntity.ok(listingService.getAllActiveListings(filterDto, pageable));
     }
 
     @GetMapping("/{id}")

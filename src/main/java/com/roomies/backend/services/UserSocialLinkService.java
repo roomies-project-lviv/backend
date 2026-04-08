@@ -2,6 +2,7 @@ package com.roomies.backend.services;
 
 import com.roomies.backend.dto.SocialLinkDto;
 import com.roomies.backend.exceptions.ResourceNotFoundException;
+import com.roomies.backend.exceptions.UnauthorizedAccessException;
 import com.roomies.backend.models.User;
 import com.roomies.backend.models.UserSocialLink;
 import com.roomies.backend.repositories.UserSocialLinkRepository;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public class UserSocialLinkService {
 
     @Autowired private UserSocialLinkRepository linkRepository;
-    @Autowired private SecurityUtils securityUtils; // <--- Додали SecurityUtils
+    @Autowired private SecurityUtils securityUtils; 
 
     // Отримати СВОЇ лінки
     public List<SocialLinkDto> getMyLinks() {
@@ -46,7 +47,7 @@ public class UserSocialLinkService {
 
         // ЗАХИСТ ВІД IDOR: Перевіряємо, чи цей лінк належить поточному юзеру
         if (!existingLink.getUser().getId().equals(me.getId())) {
-            throw new RuntimeException("Ви не маєте права редагувати це посилання");
+            throw new UnauthorizedAccessException("Ви не маєте права редагувати/видаляти це посилання");
         }
 
         existingLink.setPlatformName(dto.getPlatformName());
@@ -62,7 +63,7 @@ public class UserSocialLinkService {
                 .orElseThrow(() -> new ResourceNotFoundException("Посилання не знайдено"));
 
         if (!existingLink.getUser().getId().equals(me.getId())) {
-            throw new RuntimeException("Ви не маєте права видаляти це посилання");
+            throw new UnauthorizedAccessException("Ви не маєте права редагувати/видаляти це посилання");
         }
 
         linkRepository.delete(existingLink);
