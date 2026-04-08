@@ -202,5 +202,14 @@ public class UserService {
         return dto;
     }
 
+    public void updatePassword(String email, String newRawPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
+        
+        // Хешуємо новий пароль і зберігаємо його в базі
+        user.setPassword(passwordEncoder.encode(newRawPassword));
+        userRepository.save(user);
+    }
 
+    
 }
