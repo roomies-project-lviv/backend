@@ -14,13 +14,13 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Для наших кастомних 404 помилок
+    // Для наших 404 помилок
     @ExceptionHandler({UserNotFoundException.class, ResourceNotFoundException.class})
     public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", ex.getMessage()));
     }
 
-    // Обробка помилок валідації (з Кроку 2)
+    // Обробка помилок валідації
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -34,7 +34,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Некоректний формат ID"));
     }
 
-    // НОВИЙ БЛОК:
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Map<String, String>> handleBadCredentials(BadCredentialsException ex) {
         // Повертаємо 401 статус і чіткий текст помилки
@@ -49,5 +48,43 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", "Неіснуючий email або пароль"));
     }
     
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleEmailExists(EmailAlreadyExistsException ex) {
+        // 409 Conflict - Конфлікт ресурсів (такий email вже є)
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidOtpException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidOtp(InvalidOtpException ex) {
+        // 400 Bad Request - Поганий запит (код невірний)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(RateLimitException.class)
+    public ResponseEntity<Map<String, String>> handleRateLimit(RateLimitException ex) {
+        // 429 Too Many Requests - Забагато запитів (треба почекати 30 сек)
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidToken(InvalidTokenException ex) {
+        // 401 Unauthorized - Не авторизовано (токен протух)
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorizedAccess(UnauthorizedAccessException ex) {
+        // 403 Forbidden - Заборонено (спроба змінити чужі дані)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", ex.getMessage()));
+    }
+
+    // Загальний обробник для всіх інших RuntimeExceptions
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleAllOtherExceptions(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Внутрішня помилка сервера: " + ex.getMessage()));
+    }
+
 
 }

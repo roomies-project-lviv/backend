@@ -2,6 +2,7 @@ package com.roomies.backend.services;
 
 import com.roomies.backend.dto.RoommateRequestCreateDto;
 import com.roomies.backend.dto.RoommateRequestDto;
+import com.roomies.backend.dto.filters.RoommateFilterDto;
 import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.City;
 import com.roomies.backend.models.RoommateRequest;
@@ -10,10 +11,18 @@ import com.roomies.backend.repositories.CityRepository;
 import com.roomies.backend.repositories.RoommateRequestRepository;
 import com.roomies.backend.repositories.UserRepository;
 import com.roomies.backend.security.SecurityUtils;
+import com.roomies.backend.specifications.RoommateRequestSpecification;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.roomies.backend.dto.filters.RoommateFilterDto;
+import com.roomies.backend.specifications.RoommateRequestSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.UUID;
@@ -108,5 +117,10 @@ public class RoommateRequestService {
         return dto;
     }
 
-    
+    public Page<RoommateRequestDto> getAllActiveRequests(RoommateFilterDto filterDto, Pageable pageable) {
+        Specification<RoommateRequest> spec = RoommateRequestSpecification.withFilter(filterDto);
+        return requestRepository.findAll(spec, pageable).map(this::convertToDto);
+    }
+
+
 }

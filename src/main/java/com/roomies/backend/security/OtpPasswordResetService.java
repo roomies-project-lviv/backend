@@ -1,6 +1,10 @@
 package com.roomies.backend.security;
 
 import org.springframework.stereotype.Service;
+
+import com.roomies.backend.exceptions.InvalidOtpException;
+import com.roomies.backend.exceptions.RateLimitException;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.Random;
@@ -22,7 +26,7 @@ public class OtpPasswordResetService {
         if (cache.containsKey(email)) {
             Instant lastSent = cache.get(email).lastSentTime;
             if (Instant.now().isBefore(lastSent.plusSeconds(30))) {
-                throw new RuntimeException("Зачекайте 30 секунд перед наступною відправкою коду");
+                throw new RateLimitException("Зачекайте 30 секунд перед наступною відправкою коду");
             }
         }
 
@@ -39,13 +43,13 @@ public class OtpPasswordResetService {
     public void verifyOtp(String email, String otpCode) {
         ResetData data = cache.get(email);
 
-        if (data == null) throw new RuntimeException("Запит на відновлення не знайдено або він протух");
+        if (data == null) throw new InvalidOtpException("Сесія не знайдена або протухла");
         if (Instant.now().isAfter(data.expiryTime)) {
             cache.remove(email);
-            throw new RuntimeException("Код прострочений. Запросіть новий.");
+            throw new InvalidOtpException("Код прострочений. Запросіть новий.");
         }
         if (!data.otpCode.equals(otpCode)) {
-            throw new RuntimeException("Неправильний код");
+            throw new InvalidOtpException("Неправильний код підтвердження");
         }
         
         // Якщо код правильний, видаляємо з кешу

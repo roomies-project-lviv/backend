@@ -1,6 +1,8 @@
 package com.roomies.backend.controllers;
 
 import com.roomies.backend.dto.*;
+import com.roomies.backend.exceptions.EmailAlreadyExistsException;
+import com.roomies.backend.exceptions.InvalidTokenException;
 import com.roomies.backend.models.RefreshToken;
 import com.roomies.backend.models.User;
 import com.roomies.backend.repositories.UserRepository;
@@ -41,7 +43,7 @@ public class AuthController {
     public ResponseEntity<String> initRegistration(@Valid @RequestBody UserCreateDto request) {
         // Перевіряємо, чи немає вже такого юзера в базі
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Користувач з таким email вже існує");
+            throw new EmailAlreadyExistsException("Користувач з таким email вже існує");
         }
 
         // Зберігаємо в кеш і отримуємо код
@@ -129,7 +131,7 @@ public class AuthController {
             HttpServletResponse response) {
         
         if (refreshToken == null) {
-            throw new RuntimeException("Refresh token відсутній");
+            throw new InvalidTokenException("Refresh token відсутній");
         }
 
         return refreshTokenService.findByToken(refreshToken)
@@ -140,7 +142,7 @@ public class AuthController {
                     String newAccessToken = jwtService.generateToken(userDetails);
                     return ResponseEntity.ok(new AuthResponseDto(newAccessToken));
                 })
-                .orElseThrow(() -> new RuntimeException("Refresh token не знайдено"));
+                .orElseThrow(() -> new InvalidTokenException("Refresh token не знайдено"));
     }
 
     @PostMapping("/logout")

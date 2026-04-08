@@ -63,6 +63,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/listings/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/listings/search").permitAll()
 
                 // Дозволяємо внутрішні помилки та OPTIONS запити від Angular
                 .requestMatchers("/error").permitAll()

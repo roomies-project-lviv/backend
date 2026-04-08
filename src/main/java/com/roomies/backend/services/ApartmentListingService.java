@@ -2,6 +2,7 @@ package com.roomies.backend.services;
 
 import com.roomies.backend.dto.ApartmentListingCreateDto;
 import com.roomies.backend.dto.ApartmentListingDto;
+import com.roomies.backend.dto.filters.ListingFilterDto;
 import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.Apartment;
 import com.roomies.backend.models.ApartmentListing;
@@ -10,6 +11,7 @@ import com.roomies.backend.repositories.ApartmentListingRepository;
 import com.roomies.backend.repositories.ApartmentRepository;
 import com.roomies.backend.repositories.UserRepository;
 import com.roomies.backend.security.SecurityUtils;
+import com.roomies.backend.specifications.ApartmentListingSpecification;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 @Service
 @Transactional
@@ -98,6 +101,11 @@ public class ApartmentListingService {
 
         ApartmentListing updated = listingRepository.save(existing);
         return convertToDto(updated);
+    }
+
+    public Page<ApartmentListingDto> getAllActiveListings(ListingFilterDto filterDto, Pageable pageable) {
+        Specification<ApartmentListing> spec = ApartmentListingSpecification.withFilter(filterDto);
+        return listingRepository.findAll(spec, pageable).map(this::convertToDto);
     }
 
     
