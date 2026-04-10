@@ -22,6 +22,8 @@ public class RoommateRequestDto {
     private Integer targetCityId;
     private String targetCityName;
 
+    private Integer matchPercentage;
+
     // --- Гетери та Сетери ---
     public UUID getId() { return id; } public void setId(UUID id) { this.id = id; }
     public BigDecimal getBudgetMax() { return budgetMax; } public void setBudgetMax(BigDecimal budgetMax) { this.budgetMax = budgetMax; }
@@ -36,6 +38,8 @@ public class RoommateRequestDto {
 
     public Integer getTargetCityId() { return targetCityId; } public void setTargetCityId(Integer targetCityId) { this.targetCityId = targetCityId; }
     public String getTargetCityName() { return targetCityName; } public void setTargetCityName(String targetCityName) { this.targetCityName = targetCityName; }
-    
+
+    public Integer getMatchPercentage() { return matchPercentage; }
+    public void setMatchPercentage(Integer matchPercentage) { this.matchPercentage = matchPercentage; }
 
 }
