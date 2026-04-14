@@ -56,5 +56,20 @@ public class OtpPasswordResetService {
         cache.remove(email);
     }
 
+    // Лише перевіряє код, але залишає його в пам'яті для наступного кроку (зміни паролю)
+    public void validateOtpOnly(String email, String otpCode) {
+        ResetData data = cache.get(email);
+
+        if (data == null) throw new InvalidOtpException("Запит на відновлення не знайдено або він протух");
+        if (Instant.now().isAfter(data.expiryTime)) {
+            cache.remove(email);
+            throw new InvalidOtpException("Код прострочений. Запросіть новий.");
+        }
+        if (!data.otpCode.equals(otpCode)) {
+            throw new InvalidOtpException("Неправильний код");
+        }
+        // ВАЖЛИВО: Ми не викликаємо cache.remove(email) тут!
+    }
+    
     
 }

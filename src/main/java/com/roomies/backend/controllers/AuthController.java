@@ -13,6 +13,9 @@ import com.roomies.backend.services.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -188,6 +191,12 @@ public class AuthController {
         userService.updatePassword(request.getEmail(), request.getNewPassword());
         
         return ResponseEntity.ok("Пароль успішно змінено");
+    }
+
+    @GetMapping("/password-reset/check-code")
+    public ResponseEntity<Map<String, String>> checkResetCode(@RequestParam String email, @RequestParam String otpCode) {
+        otpPasswordResetService.validateOtpOnly(email, otpCode);
+        return ResponseEntity.ok(Map.of("message", "Код вірний"));
     }
 
     
