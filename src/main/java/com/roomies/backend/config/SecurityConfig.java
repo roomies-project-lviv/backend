@@ -64,6 +64,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/listings/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/listings/search").permitAll()
+                .requestMatchers("/ws/**").permitAll()  // Дозволяємо ініціювати WebSocket з'єднання всім, але всередині ми перевіримо токен через JwtChannelInterceptor
 
                 // Дозволяємо внутрішні помилки та OPTIONS запити від Angular
                 .requestMatchers("/error").permitAll()
