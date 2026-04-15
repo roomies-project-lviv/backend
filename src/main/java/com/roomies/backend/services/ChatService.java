@@ -88,6 +88,7 @@ public class ChatService {
                 .stream().map(msg -> {
                     ChatMessageDto dto = new ChatMessageDto();
                     dto.setId(msg.getId());
+                    dto.setChatRoomId(room.getId()); // <--- ДОДАНО ЦЕЙ РЯДОК!
                     dto.setSenderId(msg.getSender().getId());
                     dto.setContent(msg.getContent());
                     dto.setTimestamp(msg.getTimestamp());
@@ -125,18 +126,15 @@ public class ChatService {
         return dto;
     }
 
-    
-    // НОВИЙ МЕТОД ДЛЯ WEBSOCKETS
+
+    // Метод для WebSockets
     @Transactional
     public ChatMessageDto saveWebSocketMessage(UUID roomId, String content, String senderEmail) {
-        // Шукаємо відправника по email (який дістали з токена у вебсокеті)
         User me = userRepository.findByEmail(senderEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
-
         ChatRoom room = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Кімнату не знайдено"));
 
-        // Перевірка доступу
         if (!room.getUser1().getId().equals(me.getId()) && !room.getUser2().getId().equals(me.getId())) {
             throw new UnauthorizedAccessException("Ви не маєте доступу до цього чату");
         }
@@ -147,13 +145,12 @@ public class ChatService {
         message.setContent(content);
         ChatMessage saved = chatMessageRepository.save(message);
 
-        // Оновлюємо час останнього повідомлення в кімнаті
         room.setLastMessageAt(saved.getTimestamp());
         chatRoomRepository.save(room);
 
-        // Повертаємо готовий DTO
         ChatMessageDto dto = new ChatMessageDto();
         dto.setId(saved.getId());
+        dto.setChatRoomId(room.getId()); // <--- ДОДАНО ЦЕЙ РЯДОК!
         dto.setSenderId(saved.getSender().getId());
         dto.setContent(saved.getContent());
         dto.setTimestamp(saved.getTimestamp());

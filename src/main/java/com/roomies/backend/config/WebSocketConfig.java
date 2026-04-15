@@ -26,14 +26,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // Префікс для повідомлень, які фронтенд ВІДПРАВЛЯЄ на бекенд (напр. /app/chat.send)
         registry.setApplicationDestinationPrefixes("/app");
-        
-        // Префікси для повідомлень, які бекенд РОЗСИЛАЄ юзерам
-        // /user - для приватних повідомлень
-        registry.enableSimpleBroker("/user");
-        
-        // Префікс для визначення конкретного юзера (щоб відправляти приватно)
+        // ДОДАЛИ "/topic" для спільних кімнат
+        registry.enableSimpleBroker("/user", "/queue", "/topic"); 
         registry.setUserDestinationPrefix("/user");
     }
 

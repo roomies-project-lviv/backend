@@ -28,28 +28,24 @@ public class WebSocketChatController {
     // @MessageMapping перехоплює повідомлення, які Angular відправляє на "/app/chat.send"
     @MessageMapping("/chat.send")
     public void processMessage(@Payload ChatMessagePayload payload, Principal principal) {
-        
-        // 1. Отримуємо email відправника з STOMP сесії (з нашого JwtChannelInterceptor)
-        String senderEmail = principal.getName();
+        try {
+            String senderEmail = principal.getName();
 
-        // 2. Зберігаємо повідомлення в базу даних через сервіс
-        ChatMessageDto savedMessage = chatService.saveWebSocketMessage(
-                payload.getRoomId(), 
-                payload.getContent(), 
-                senderEmail
-        );
+            ChatMessageDto savedMessage = chatService.saveWebSocketMessage(
+                    payload.getRoomId(), 
+                    payload.getContent(), 
+                    senderEmail
+            );
 
-        // 3. Знаходимо email одержувача, щоб знати, в яку "поштову скриньку" кидати повідомлення
-        User recipient = userRepository.findById(payload.getRecipientId())
-                .orElseThrow(() -> new RuntimeException("Одержувача не знайдено"));
+            // ВАЖЛИВО: Відправляємо повідомлення у спільний канал кімнати!
+            String destination = "/topic/room/" + payload.getRoomId();
+            System.out.println("🔵 [WebSocket] Бродкаст у кімнату: " + destination);
 
-        // 4. ВІДПРАВЛЯЄМО ПОВІДОМЛЕННЯ!
-        // Spring автоматично перетворить це на чергу: /user/{recipientEmail}/queue/messages
-        messagingTemplate.convertAndSendToUser(
-                recipient.getEmail(), 
-                "/queue/messages", 
-                savedMessage
-        );
+            messagingTemplate.convertAndSend(destination, savedMessage);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
