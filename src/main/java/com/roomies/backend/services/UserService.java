@@ -115,36 +115,27 @@ public class UserService {
         if (updates.containsKey("noise_tolerance")) existingUser.setNoiseTolerance((String) updates.get("noise_tolerance"));
         if (updates.containsKey("cleanliness_level")) existingUser.setCleanlinessLevel((String) updates.get("cleanliness_level"));
         if (updates.containsKey("dietary_preferences")) existingUser.setDietaryPreferences((String) updates.get("dietary_preferences"));
-        //if (updates.containsKey("lifestyle_flags")) existingUser.setLifestyleFlags((String) updates.get("lifestyle_flags"));
 
-
-        // --- ЗАПАКОВУЄМО lifestyle_flags НАЗАД У БАЗУ ---
-        // Беремо поточні прапорці або створюємо масив з 8 нулів, якщо їх ще не було
-        String currentFlags = existingUser.getLifestyleFlags();
-        if (currentFlags == null || currentFlags.length() < 8) {
-            currentFlags = "00000000";
+        // --- КОРЕКТНЕ ПАКУВАННЯ ЗВИЧОК (lifestyle_flags) У JSON/MAP ---
+        // 1. Беремо поточний словник користувача, щоб не затерти існуючі дані
+        Map<String, Object> flags = existingUser.getLifestyleFlags();
+        if (flags == null) {
+            flags = new java.util.HashMap<>();
         }
-        
-        // Перетворюємо рядок на масив символів, щоб зручно міняти окремі біти
-        char[] flagsArray = currentFlags.toCharArray();
 
+        // 2. Якщо з фронтенду прийшли нові звички — точково додаємо їх у словник
         if (updates.containsKey("isSmoker")) {
-            boolean isSmoker = (Boolean) updates.get("isSmoker");
-            flagsArray[0] = isSmoker ? '1' : '0';
+            flags.put("isSmoker", updates.get("isSmoker"));
         }
-        
         if (updates.containsKey("drinksAlcohol")) {
-            boolean drinksAlcohol = (Boolean) updates.get("drinksAlcohol");
-            flagsArray[1] = drinksAlcohol ? '1' : '0';
+            flags.put("drinksAlcohol", updates.get("drinksAlcohol"));
         }
-
         if (updates.containsKey("partyHabits")) {
-            boolean partyHabits = (Boolean) updates.get("partyHabits");
-            flagsArray[2] = partyHabits ? '1' : '0';
+            flags.put("partyHabits", updates.get("partyHabits"));
         }
 
-        // Зберігаємо змінений масив назад як рядок
-        existingUser.setLifestyleFlags(new String(flagsArray));
+        // 3. Кладемо словник назад у правильну змінну (existingUser)
+        existingUser.setLifestyleFlags(flags);
 
         User updatedUser = userRepository.save(existingUser);
         return convertToDto(updatedUser);
@@ -181,18 +172,14 @@ public class UserService {
             dto.setPetTypeId(user.getPetType().getId());
             dto.setPetTypeName(user.getPetType().getName());
         }
-        
-        // --- РОЗШИФРОВУЄМО lifestyle_flags ---
-        String flags = user.getLifestyleFlags();
-        
-        // Перевіряємо, чи рядок не порожній і має хоча б 2 символи
-        if (flags != null && flags.length() >= 2) {
-            // '1' на нульовій позиції = курить
-            dto.setIsSmoker(flags.charAt(0) == '1'); 
-            // '1' на першій позиції = вживає алкоголь
-            dto.setDrinksAlcohol(flags.charAt(1) == '1');
-            // '1' на другій позиції = влаштує вечірки
-            dto.setPartyHabits(flags.charAt(2) == '1');
+
+        // --- РОЗШИФРОВУЄМО lifestyle_flags (З JSON у змінні DTO) ---
+        Map<String, Object> flags = user.getLifestyleFlags();
+
+        if (flags != null) {
+            dto.setIsSmoker(Boolean.TRUE.equals(flags.get("isSmoker")));
+            dto.setDrinksAlcohol(Boolean.TRUE.equals(flags.get("drinksAlcohol")));
+            dto.setPartyHabits(Boolean.TRUE.equals(flags.get("partyHabits")));
         } else {
             // Безпечні значення за замовчуванням
             dto.setIsSmoker(false);

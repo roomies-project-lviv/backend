@@ -3,7 +3,10 @@ package com.roomies.backend.models;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import java.util.HashMap;
+import java.util.Map;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -64,8 +67,9 @@ public class User {
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "lifestyle_flags", columnDefinition = "bit(8)")
-    private String lifestyleFlags;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "lifestyle_flags", columnDefinition = "jsonb")
+    private Map<String, Object> lifestyleFlags = new HashMap<>();
 
     @Column(name = "phone_number")
     private String phoneNumber;
@@ -135,8 +139,8 @@ public class User {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 
-    public String getLifestyleFlags() { return lifestyleFlags; }
-    public void setLifestyleFlags(String lifestyleFlags) { this.lifestyleFlags = lifestyleFlags; }
+    public Map<String, Object> getLifestyleFlags() { return lifestyleFlags; }
+    public void setLifestyleFlags(Map<String, Object> lifestyleFlags) { this.lifestyleFlags = lifestyleFlags; }
 
     public PetType getPetType() { return petType; }
     public void setPetType(PetType petType) { this.petType = petType; }

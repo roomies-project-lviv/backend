@@ -2,6 +2,7 @@ package com.roomies.backend.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 public class UserDto {
@@ -20,7 +21,7 @@ public class UserDto {
     private String dietaryPreferences;
     private String bio;
     private LocalDateTime createdAt;
-    private String lifestyleFlags;
+    private Map<String, Object> lifestyleFlags;
     private String phoneNumber;
 
     // --- Гетери та Сетери ---
@@ -69,8 +70,8 @@ public class UserDto {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public String getLifestyleFlags() { return lifestyleFlags; }
-    public void setLifestyleFlags(String lifestyleFlags) { this.lifestyleFlags = lifestyleFlags; }
+    public Map<String, Object> getLifestyleFlags() { return lifestyleFlags; }
+    public void setLifestyleFlags(Map<String, Object> lifestyleFlags) { this.lifestyleFlags = lifestyleFlags; }
     
     private Integer petTypeId;
     private String petTypeName;
