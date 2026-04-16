@@ -48,12 +48,11 @@ Authorization: Bearer {{auth_token}}
 
 ### 4. Отримати список сумісних сусідів (Дефолтний ліміт 20)
 # УВАГА:
-# 1. Заміни "ТВІЙ-USER-UUID" на свій реальний ID користувача.
-# 2. Заміни "1" у параметрі cityId на ID міста, де шукаємо (наприклад, Львів).
-GET http://localhost:8080/api/users/06836bd6-c4c5-45f7-860d-114b86b9c960/potential-matches?cityId=2
+# Заміни "2" у параметрі cityId на ID міста, де шукаємо (наприклад, Львів).
+GET http://localhost:8080/api/users/me/potential-matches?cityId=4
 Authorization: Bearer {{auth_token}}
 
 ### 5. Отримати список із жорсткою пагінацією (тільки топ-2 найкращих кандидати)
 # Додаємо параметри size=2 та page=0
-GET http://localhost:8080/api/users/ТВІЙ-USER-UUID/potential-matches?cityId=1&size=2&page=0
+GET http://localhost:8080/api/users/me/potential-matches?cityId=2&size=2&page=0
 Authorization: Bearer {{auth_token}}

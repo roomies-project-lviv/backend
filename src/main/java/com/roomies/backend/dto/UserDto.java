@@ -1,5 +1,7 @@
 package com.roomies.backend.dto;
 
+import com.roomies.backend.models.LifestyleProfile;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -13,15 +15,10 @@ public class UserDto {
     private LocalDate birthDate;
     private String gender;
     private String avatarUrl;
-    private String sleepSchedule;
     private String occupation;
-    private String guestsFrequency;
-    private String noiseTolerance;
-    private String cleanlinessLevel;
-    private String dietaryPreferences;
     private String bio;
     private LocalDateTime createdAt;
-    private Map<String, Object> lifestyleFlags;
+    private LifestyleProfile lifestyleProfile;
     private String phoneNumber;
 
     // --- Гетери та Сетери ---
@@ -46,23 +43,8 @@ public class UserDto {
     public String getAvatarUrl() { return avatarUrl; }
     public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
 
-    public String getSleepSchedule() { return sleepSchedule; }
-    public void setSleepSchedule(String sleepSchedule) { this.sleepSchedule = sleepSchedule; }
-
     public String getOccupation() { return occupation; }
     public void setOccupation(String occupation) { this.occupation = occupation; }
-
-    public String getGuestsFrequency() { return guestsFrequency; }
-    public void setGuestsFrequency(String guestsFrequency) { this.guestsFrequency = guestsFrequency; }
-
-    public String getNoiseTolerance() { return noiseTolerance; }
-    public void setNoiseTolerance(String noiseTolerance) { this.noiseTolerance = noiseTolerance; }
-
-    public String getCleanlinessLevel() { return cleanlinessLevel; }
-    public void setCleanlinessLevel(String cleanlinessLevel) { this.cleanlinessLevel = cleanlinessLevel; }
-
-    public String getDietaryPreferences() { return dietaryPreferences; }
-    public void setDietaryPreferences(String dietaryPreferences) { this.dietaryPreferences = dietaryPreferences; }
 
     public String getBio() { return bio; }
     public void setBio(String bio) { this.bio = bio; }
@@ -70,27 +52,13 @@ public class UserDto {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public Map<String, Object> getLifestyleFlags() { return lifestyleFlags; }
-    public void setLifestyleFlags(Map<String, Object> lifestyleFlags) { this.lifestyleFlags = lifestyleFlags; }
-    
+    public LifestyleProfile getLifestyleProfile() { return lifestyleProfile; }
+    public void setLifestyleProfile(LifestyleProfile lifestyleProfile) { this.lifestyleProfile = lifestyleProfile; }
+
     private Integer petTypeId;
     private String petTypeName;
 
-    
-    // Додаємо розшифровані поля:
-    private Boolean isSmoker;
-    private Boolean drinksAlcohol;
-    private Boolean partyHabits;
-
     // --- Гетери та Сетери для нових полів ---
-    public Boolean getIsSmoker() { return isSmoker; }
-    public void setIsSmoker(Boolean isSmoker) { this.isSmoker = isSmoker; }
-
-    public Boolean getDrinksAlcohol() { return drinksAlcohol; }
-    public void setDrinksAlcohol(Boolean drinksAlcohol) { this.drinksAlcohol = drinksAlcohol; }
-
-    public Boolean getPartyHabits() { return partyHabits; }
-    public void setPartyHabits(Boolean partyHabits) { this.partyHabits = partyHabits; }
 
     public Integer getPetTypeId() { return petTypeId; }
     public void setPetTypeId(Integer petTypeId) { this.petTypeId = petTypeId; }
