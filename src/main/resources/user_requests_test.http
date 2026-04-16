@@ -1,65 +1,59 @@
-### 1. Створити нового користувача (POST) - Якщо це адмінський ендпоінт
-POST http://localhost:8080/api/users
+### ==========================================
+### ТЕСТУВАННЯ ПРОФІЛЮ КОРИСТУВАЧА (USER API)
+### Увага: Усі запити тепер йдуть через /me (для поточного авторизованого користувача)
+### ==========================================
+
+### 1. Отримати дані про себе (GET /me)
+GET http://localhost:8080/api/users/me
+Authorization: Bearer {{auth_token}}
+
+### 2. Оновити свій профіль (PUT /me)
+PUT http://localhost:8080/api/users/me
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "email": "new.user@mail.com",
-  "password": "secure_pass_3",
-  "firstName": "Олег",
-  "lastName": "Коваленко",
-  "birthDate": "1999-08-22",
-  "gender": "male",
-  "bio": "Студент 4-го курсу. Багато вчуся, тому дуже ціную тишу і спокій. Без шкідливих звичок.",
-  "occupation": "student",
-  "sleepSchedule": "early_bird",
-  "guestsFrequency": "rarely",
-  "phoneNumber": "+380991234567",
-  "noiseTolerance": "low",
-  "cleanlinessLevel": "high",
-  "dietaryPreferences": "vegetarian"
-}
-
-### 2. Отримати список усіх користувачів (GET)
-GET http://localhost:8080/api/users
-Authorization: Bearer {{auth_token}}
-
-### 3. Отримати користувача за ID (GET)
-GET http://localhost:8080/api/users/b6f277af-5c05-4a19-aebc-ef7e12aa7be2
-Authorization: Bearer {{auth_token}}
-
-### 4. Повністю оновити профіль (PUT)
-PUT http://localhost:8080/api/users/b6f277af-5c05-4a19-aebc-ef7e12aa7be2
-Content-Type: application/json
-Authorization: Bearer {{auth_token}}
-
-{
-  "email": "nemaksym.b@mail.com",
-  "firstName": "ВжеНеМаксим",
-  "lastName": "НеБойко",
+  "email": "mike_test@mail.com",
+  "firstName": "ОновленеІм'я",
+  "lastName": "ОновленеПрізвище",
   "birthDate": "2000-08-22",
   "gender": "male",
   "phoneNumber": "+380679876543",
-  "bio": "Студент 2-го курсу. Багато вчуся, тому дуже ціную тишу і спокій. Без шкідливих звичок.",
+  "bio": "Студент. Багато вчуся, тому дуже ціную тишу.",
   "occupation": "student",
   "avatarUrl": "https://example.com/my-new-avatar.png"
 }
 
-### 5. Частково оновити налаштування (PATCH)
-PATCH http://localhost:8080/api/users/b6f277af-5c05-4a19-aebc-ef7e12aa7be2/preferences
+### 3. Частково оновити свої налаштування та звички (PATCH /me/preferences)
+# Ці дані автоматично запакуються в JSONB колонку lifestyle_flags у базі даних
+PATCH http://localhost:8080/api/users/me/preferences
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "sleep_schedule": "Рання пташка",
-  "noise_tolerance": "Середня",
-  "cleanliness_level": "Високий"
+  "sleep_schedule": "early_bird",
+  "guests_frequency": "rarely",
+  "noise_tolerance": "low",
+  "cleanliness_level": "high",
+  "dietary_preferences": "none",
+  "isSmoker": false,
+  "drinksAlcohol": false,
+  "partyHabits": false
 }
 
-### 6. Видалити користувача (DELETE)
-DELETE http://localhost:8080/api/users/7745e4f4-cab8-4db8-b853-741efa8f624e
+
+### ==========================================
+### ТЕСТУВАННЯ АЛГОРИТМУ МЕТЧИНГУ (MATCHING API)
+### ==========================================
+
+### 4. Отримати список сумісних сусідів (Дефолтний ліміт 20)
+# УВАГА:
+# 1. Заміни "ТВІЙ-USER-UUID" на свій реальний ID користувача.
+# 2. Заміни "1" у параметрі cityId на ID міста, де шукаємо (наприклад, Львів).
+GET http://localhost:8080/api/users/06836bd6-c4c5-45f7-860d-114b86b9c960/potential-matches?cityId=2
 Authorization: Bearer {{auth_token}}
 
-### 7. Отримати список сумісних сусідів (Дефолтний ліміт 20)
-GET http://localhost:8080/api/users/11111111-1111-1111-1111-111111111111/potential-matches?cityId=1
+### 5. Отримати список із жорсткою пагінацією (тільки топ-2 найкращих кандидати)
+# Додаємо параметри size=2 та page=0
+GET http://localhost:8080/api/users/ТВІЙ-USER-UUID/potential-matches?cityId=1&size=2&page=0
 Authorization: Bearer {{auth_token}}

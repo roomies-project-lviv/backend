@@ -1,9 +1,8 @@
 package com.roomies.backend.repositories;
 
-import com.roomies.backend.models.RoommateRequest;
+import java.util.UUID;
 
-// Spring Data автоматично реалізує цей інтерфейс під капотом
 public interface RoommateMatchProjection {
-    RoommateRequest getRequest();
-    Integer getMatchPercentage();
+    UUID getRequestId(); // Беремо тільки ID анкети
+    Integer getMatchPercentage(); // Беремо порахований бал
 }

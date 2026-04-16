@@ -10,6 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.roomies.backend.exceptions.ResourceNotFoundException;
 
 import java.util.UUID;
 
@@ -20,17 +23,26 @@ public class MatchingService {
     @Autowired private UserRepository userRepository;
     @Autowired private RoommateRequestRepository requestRepository;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
     public Page<RoommateRequestDto> getPotentialMatches(UUID searcherId, Long cityId, Pageable pageable) {
-
-        // 1. Отримуємо профіль того, хто шукає, щоб знати його звички
         User searcher = userRepository.findById(searcherId)
                 .orElseThrow(() -> new RuntimeException("Користувача не знайдено"));
 
-        // 2. Викликаємо наш JPQL запит з лімітами (пагінацією)
+        // 1. Перетворюємо Map у JSON-рядок для бази даних
+        String lifestyleJsonString = "{}";
+        try {
+            if (searcher.getLifestyleFlags() != null) {
+                lifestyleJsonString = objectMapper.writeValueAsString(searcher.getLifestyleFlags());
+            }
+        } catch (JsonProcessingException e) {
+            System.err.println("Помилка конвертації JSON: " + e.getMessage());
+        }
+
+        // 2. Викликаємо Native SQL запит
         Page<RoommateMatchProjection> matches = requestRepository.findPotentialMatches(
                 cityId,
                 searcherId,
-                searcher.getLifestyleFlags(),
+                lifestyleJsonString, // Передаємо сформований JSON
                 searcher.getSleepSchedule(),
                 searcher.getCleanlinessLevel(),
                 searcher.getNoiseTolerance(),
@@ -39,9 +51,13 @@ public class MatchingService {
                 pageable
         );
 
-        // 3. Конвертуємо результат у DTO
+        // 3. Збираємо фінальний результат
         return matches.map(projection -> {
-            RoommateRequestDto dto = convertToDto(projection.getRequest());
+            // Оскільки база віддала тільки ID, ми дістаємо повну анкету
+            com.roomies.backend.models.RoommateRequest request = requestRepository.findById(projection.getRequestId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Анкету не знайдено"));
+
+            RoommateRequestDto dto = convertToDto(request);
             dto.setMatchPercentage(projection.getMatchPercentage());
             return dto;
         });
