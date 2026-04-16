@@ -14,11 +14,13 @@ import com.roomies.backend.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -28,6 +30,7 @@ public class ChatService {
     @Autowired private ChatMessageRepository chatMessageRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private SecurityUtils securityUtils;
+    @Autowired private SimpMessagingTemplate messagingTemplate;
 
     // 1. Отримати всі діалоги поточного користувача
     public List<ChatRoomDto> getMyChatRooms() {
@@ -44,6 +47,8 @@ public class ChatService {
             dto.setOtherUserId(otherUser.getId());
             dto.setOtherUserFirstName(otherUser.getFirstName());
             
+            dto.setUnreadCount(chatMessageRepository.countUnreadMessages(room, me));    // ДОДАЄМО ПІДРАХУНОК НЕПРОЧИТАНИХ ПОВІДОМЛЕНЬ
+
             return dto;
         }).collect(Collectors.toList());
     }
@@ -156,6 +161,27 @@ public class ChatService {
         dto.setTimestamp(saved.getTimestamp());
         dto.setIsRead(saved.getIsRead());
         return dto;
+    }
+
+
+    @Transactional
+    public void markRoomMessagesAsRead(UUID roomId) {
+        User me = securityUtils.getCurrentUser();
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Кімнату не знайдено"));
+        
+        chatMessageRepository.markAsReadByRoomAndUser(room, me);
+
+        // ТРИГЕР: Відправляємо подію "Прочитано" в канал кімнати!
+        // Передаємо звичайний рядок як Payload, щоб компілятор не плутався
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/read", "READ_EVENT");    
+    }
+
+    
+    // Метод для отримання загальної кількості непрочитаних повідомлень
+    public int getTotalUnreadCount() {
+        User me = securityUtils.getCurrentUser();
+        return chatMessageRepository.countTotalUnreadMessages(me);
     }
 
 

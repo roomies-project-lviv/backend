@@ -45,4 +45,17 @@ public class ChatController {
     }
 
     
+    // Позначити всі повідомлення в кімнаті як прочитані
+    @PutMapping("/rooms/{roomId}/read")
+    public ResponseEntity<Void> markAsRead(@PathVariable UUID roomId) {
+        chatService.markRoomMessagesAsRead(roomId);
+        return ResponseEntity.ok().build();
+    }
+
+    // Отримати загальну кількість непрочитаних повідомлень по всіх кімнатах
+    @GetMapping("/unread-count")
+    public ResponseEntity<Map<String, Integer>> getTotalUnreadCount() {
+        return ResponseEntity.ok(Map.of("count", chatService.getTotalUnreadCount()));
+    }
+
 }
