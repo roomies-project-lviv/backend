@@ -31,17 +31,24 @@ public class WebSocketChatController {
         try {
             String senderEmail = principal.getName();
 
+            // 1. Зберігаємо повідомлення (сервіс сам розуміє, хто відправник)
             ChatMessageDto savedMessage = chatService.saveWebSocketMessage(
                     payload.getRoomId(), 
                     payload.getContent(), 
                     senderEmail
             );
 
-            // ВАЖЛИВО: Відправляємо повідомлення у спільний канал кімнати!
-            String destination = "/topic/room/" + payload.getRoomId();
-            System.out.println("🔵 [WebSocket] Бродкаст у кімнату: " + destination);
+            // 2. Відправляємо у відкриту радіо-кімнату (для тих, хто зараз сидить у цьому чаті)
+            String roomDestination = "/topic/room/" + payload.getRoomId();
+            messagingTemplate.convertAndSend(roomDestination, savedMessage);
 
-            messagingTemplate.convertAndSend(destination, savedMessage);
+            // 3. ПОВЕРНУЛИ ЦЕЙ РЯДОК: Знаходимо одержувача в базі даних, щоб дізнатися його email
+            User recipient = userRepository.findById(payload.getRecipientId())
+                    .orElseThrow(() -> new RuntimeException("Одержувача не знайдено"));
+
+            // 4. Глобальне сповіщення на особистий канал одержувача (для червоних кружечків)
+            String globalDestination = "/queue/notifications-" + recipient.getEmail();
+            messagingTemplate.convertAndSend(globalDestination, savedMessage);
 
         } catch (Exception e) {
             e.printStackTrace();
