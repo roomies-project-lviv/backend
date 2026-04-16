@@ -5,6 +5,7 @@ import com.roomies.backend.dto.UserDto;
 import com.roomies.backend.exceptions.EmailAlreadyExistsException;
 import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.exceptions.UserNotFoundException;
+import com.roomies.backend.models.LifestyleProfile;
 import com.roomies.backend.models.User;
 import com.roomies.backend.repositories.UserRepository;
 import com.roomies.backend.security.SecurityUtils;
@@ -23,7 +24,7 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-    @Autowired 
+    @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private com.roomies.backend.repositories.PetTypeRepository petTypeRepository;
@@ -31,24 +32,21 @@ public class UserService {
     @Autowired
     private SecurityUtils securityUtils;
 
-    // Отримати СВІЙ профіль
     public UserDto getMyProfile() {
         User me = securityUtils.getCurrentUser();
         return convertToDto(me);
     }
 
-    // Оновити СВІЙ профіль
     public UserDto updateMyProfile(UserDto updateDto) {
         User me = securityUtils.getCurrentUser();
-        return updateUserProfile(me.getId(), updateDto); // Викликаємо існуючий метод
+        return updateUserProfile(me.getId(), updateDto);
     }
 
-    // Оновити СВОЇ налаштування
     public UserDto updateMyPreferences(Map<String, Object> updates) {
         User me = securityUtils.getCurrentUser();
-        return updateUserPreferences(me.getId(), updates); // Викликаємо існуючий метод
+        return updateUserPreferences(me.getId(), updates);
     }
-    
+
     public List<UserDto> getAllUsers() {
         return userRepository.findAll()
                 .stream()
@@ -77,7 +75,7 @@ public class UserService {
         user.setGender(createDto.getGender());
 
         User savedUser = userRepository.save(user);
-        return convertToDto(savedUser); // Повертаємо безпечний DTO без пароля
+        return convertToDto(savedUser);
     }
 
     public UserDto updateUserProfile(UUID id, UserDto updateDto) {
@@ -99,7 +97,7 @@ public class UserService {
                     .orElseThrow(() -> new ResourceNotFoundException("Pet Type not found"));
             existingUser.setPetType(petType);
         } else {
-            existingUser.setPetType(null); // Якщо користувач видалив тварину з профілю
+            existingUser.setPetType(null);
         }
 
         User updatedUser = userRepository.save(existingUser);
@@ -110,32 +108,24 @@ public class UserService {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
 
-        if (updates.containsKey("sleep_schedule")) existingUser.setSleepSchedule((String) updates.get("sleep_schedule"));
-        if (updates.containsKey("guests_frequency")) existingUser.setGuestsFrequency((String) updates.get("guests_frequency"));
-        if (updates.containsKey("noise_tolerance")) existingUser.setNoiseTolerance((String) updates.get("noise_tolerance"));
-        if (updates.containsKey("cleanliness_level")) existingUser.setCleanlinessLevel((String) updates.get("cleanliness_level"));
-        if (updates.containsKey("dietary_preferences")) existingUser.setDietaryPreferences((String) updates.get("dietary_preferences"));
-
-        // --- КОРЕКТНЕ ПАКУВАННЯ ЗВИЧОК (lifestyle_flags) У JSON/MAP ---
-        // 1. Беремо поточний словник користувача, щоб не затерти існуючі дані
-        Map<String, Object> flags = existingUser.getLifestyleFlags();
-        if (flags == null) {
-            flags = new java.util.HashMap<>();
+        // Отримуємо поточний профіль звичок або створюємо новий
+        LifestyleProfile profile = existingUser.getLifestyleProfile();
+        if (profile == null) {
+            profile = new LifestyleProfile();
         }
 
-        // 2. Якщо з фронтенду прийшли нові звички — точково додаємо їх у словник
-        if (updates.containsKey("isSmoker")) {
-            flags.put("isSmoker", updates.get("isSmoker"));
-        }
-        if (updates.containsKey("drinksAlcohol")) {
-            flags.put("drinksAlcohol", updates.get("drinksAlcohol"));
-        }
-        if (updates.containsKey("partyHabits")) {
-            flags.put("partyHabits", updates.get("partyHabits"));
-        }
+        // Оновлюємо поля
+        if (updates.containsKey("sleep_schedule")) profile.setSleepSchedule((String) updates.get("sleep_schedule"));
+        if (updates.containsKey("guests_frequency")) profile.setGuestsFrequency((String) updates.get("guests_frequency"));
+        if (updates.containsKey("noise_tolerance")) profile.setNoiseTolerance((String) updates.get("noise_tolerance"));
+        if (updates.containsKey("cleanliness_level")) profile.setCleanlinessLevel((String) updates.get("cleanliness_level"));
+        if (updates.containsKey("dietary_preferences")) profile.setDietaryPreferences((String) updates.get("dietary_preferences"));
+        if (updates.containsKey("isSmoker")) profile.setIsSmoker((Boolean) updates.get("isSmoker"));
+        if (updates.containsKey("drinksAlcohol")) profile.setDrinksAlcohol((Boolean) updates.get("drinksAlcohol"));
+        if (updates.containsKey("partyHabits")) profile.setPartyHabits((Boolean) updates.get("partyHabits"));
 
-        // 3. Кладемо словник назад у правильну змінну (existingUser)
-        existingUser.setLifestyleFlags(flags);
+        // Зберігаємо профіль в користувача
+        existingUser.setLifestyleProfile(profile);
 
         User updatedUser = userRepository.save(existingUser);
         return convertToDto(updatedUser);
@@ -147,7 +137,6 @@ public class UserService {
         userRepository.delete(existingUser);
     }
 
-    // --- ПЕРЕКЛАДАЧ (Mapper) ---
     private UserDto convertToDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
@@ -157,47 +146,27 @@ public class UserService {
         dto.setBirthDate(user.getBirthDate());
         dto.setGender(user.getGender());
         dto.setAvatarUrl(user.getAvatarUrl());
-        dto.setSleepSchedule(user.getSleepSchedule());
         dto.setOccupation(user.getOccupation());
-        dto.setGuestsFrequency(user.getGuestsFrequency());
-        dto.setNoiseTolerance(user.getNoiseTolerance());
-        dto.setCleanlinessLevel(user.getCleanlinessLevel());
-        dto.setDietaryPreferences(user.getDietaryPreferences());
         dto.setBio(user.getBio());
         dto.setCreatedAt(user.getCreatedAt());
         dto.setPhoneNumber(user.getPhoneNumber());
 
-        // --- ДОДАЄМО ОБРОБКУ ТВАРИНИ ---
         if (user.getPetType() != null) {
             dto.setPetTypeId(user.getPetType().getId());
             dto.setPetTypeName(user.getPetType().getName());
         }
 
-        // --- РОЗШИФРОВУЄМО lifestyle_flags (З JSON у змінні DTO) ---
-        Map<String, Object> flags = user.getLifestyleFlags();
+        // Просто передаємо об'єкт (Spring/Jackson сам перетворить його у правильний JSON для фронтенда)
+        dto.setLifestyleProfile(user.getLifestyleProfile());
 
-        if (flags != null) {
-            dto.setIsSmoker(Boolean.TRUE.equals(flags.get("isSmoker")));
-            dto.setDrinksAlcohol(Boolean.TRUE.equals(flags.get("drinksAlcohol")));
-            dto.setPartyHabits(Boolean.TRUE.equals(flags.get("partyHabits")));
-        } else {
-            // Безпечні значення за замовчуванням
-            dto.setIsSmoker(false);
-            dto.setDrinksAlcohol(false);
-            dto.setPartyHabits(false);
-        }
-        
         return dto;
     }
 
     public void updatePassword(String email, String newRawPassword) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
-        
-        // Хешуємо новий пароль і зберігаємо його в базі
+
         user.setPassword(passwordEncoder.encode(newRawPassword));
         userRepository.save(user);
     }
-
-    
 }

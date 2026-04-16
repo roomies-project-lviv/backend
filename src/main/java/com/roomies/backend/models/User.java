@@ -42,24 +42,9 @@ public class User {
     private String gender; 
     
     @Column(name = "avatar_url")
-    private String avatarUrl; 
+    private String avatarUrl;
 
-    @Column(name = "sleep_schedule")
-    private String sleepSchedule;
-
-    private String occupation; 
-    
-    @Column(name = "guests_frequency")
-    private String guestsFrequency; 
-
-    @Column(name = "noise_tolerance")
-    private String noiseTolerance; 
-
-    @Column(name = "cleanliness_level")
-    private String cleanlinessLevel; 
-
-    @Column(name = "dietary_preferences")
-    private String dietaryPreferences; 
+    private String occupation;
 
     @Column(columnDefinition = "TEXT")
     private String bio; 
@@ -69,7 +54,7 @@ public class User {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "lifestyle_flags", columnDefinition = "jsonb")
-    private Map<String, Object> lifestyleFlags = new HashMap<>();
+    private LifestyleProfile lifestyleProfile;
 
     @Column(name = "phone_number")
     private String phoneNumber;
@@ -116,31 +101,16 @@ public class User {
     public String getAvatarUrl() { return avatarUrl; }
     public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
 
-    public String getSleepSchedule() { return sleepSchedule; }
-    public void setSleepSchedule(String sleepSchedule) { this.sleepSchedule = sleepSchedule; }
-
     public String getOccupation() { return occupation; }
     public void setOccupation(String occupation) { this.occupation = occupation; }
-
-    public String getGuestsFrequency() { return guestsFrequency; }
-    public void setGuestsFrequency(String guestsFrequency) { this.guestsFrequency = guestsFrequency; }
-
-    public String getNoiseTolerance() { return noiseTolerance; }
-    public void setNoiseTolerance(String noiseTolerance) { this.noiseTolerance = noiseTolerance; }
-
-    public String getCleanlinessLevel() { return cleanlinessLevel; }
-    public void setCleanlinessLevel(String cleanlinessLevel) { this.cleanlinessLevel = cleanlinessLevel; }
-
-    public String getDietaryPreferences() { return dietaryPreferences; }
-    public void setDietaryPreferences(String dietaryPreferences) { this.dietaryPreferences = dietaryPreferences; }
 
     public String getBio() { return bio; }
     public void setBio(String bio) { this.bio = bio; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 
-    public Map<String, Object> getLifestyleFlags() { return lifestyleFlags; }
-    public void setLifestyleFlags(Map<String, Object> lifestyleFlags) { this.lifestyleFlags = lifestyleFlags; }
+    public LifestyleProfile getLifestyleProfile() { return lifestyleProfile; }
+    public void setLifestyleProfile(LifestyleProfile lifestyleProfile) { this.lifestyleProfile = lifestyleProfile; }
 
     public PetType getPetType() { return petType; }
     public void setPetType(PetType petType) { this.petType = petType; }
