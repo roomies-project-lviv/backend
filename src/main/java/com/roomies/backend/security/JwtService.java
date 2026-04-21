@@ -34,7 +34,14 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        // Створюємо мапу для додаткових даних у токені
+        Map<String, Object> extraClaims = new HashMap<>();
+        
+        // Дістаємо роль (наприклад "ROLE_ADMIN") і кладемо в токен
+        String role = userDetails.getAuthorities().iterator().next().getAuthority();
+        extraClaims.put("role", role);
+
+        return generateToken(extraClaims, userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {

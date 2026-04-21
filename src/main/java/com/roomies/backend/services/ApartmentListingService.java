@@ -1,5 +1,6 @@
 package com.roomies.backend.services;
 
+import com.roomies.backend.dto.AdminListingSaveDto;
 import com.roomies.backend.dto.ApartmentListingCreateDto;
 import com.roomies.backend.dto.ApartmentListingDto;
 import com.roomies.backend.dto.filters.ListingFilterDto;
@@ -108,5 +109,66 @@ public class ApartmentListingService {
         return listingRepository.findAll(spec, pageable).map(this::convertToDto);
     }
 
-    
+
+    // Отримати всі оголошення для адмінки
+    public List<ApartmentListingDto> getAllListingsForAdmin() {
+        return listingRepository.findAll().stream().map(listing -> {
+            ApartmentListingDto dto = new ApartmentListingDto();
+            dto.setId(listing.getId());
+            dto.setTitle(listing.getTitle());
+            dto.setPricePerMonth(listing.getPricePerMonth());
+            dto.setAuthorFirstName(listing.getAuthor().getFirstName());
+            
+            // Дістаємо назву міста через об'єкт Apartment
+            String cityName = "";
+            if (listing.getApartment() != null && listing.getApartment().getCity() != null) {
+                cityName = listing.getApartment().getCity().getName() + ", ";
+            }
+            
+            dto.setAddress(cityName + listing.getApartment().getAddress());
+            
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    // Видалити оголошення (модерація)
+    @Transactional
+    public void deleteListingByAdmin(String id) {
+        // Конвертуємо String у UUID
+        UUID uuidId = UUID.fromString(id); 
+
+        // Тепер передаємо uuidId у репозиторій
+        if (!listingRepository.existsById(uuidId)) {
+            throw new ResourceNotFoundException("Оголошення не знайдено");
+        }
+        listingRepository.deleteById(uuidId);
+    }
+
+    @Transactional
+    public ApartmentListingDto saveListingByAdmin(String id, AdminListingSaveDto dto) {
+        ApartmentListing listing;
+        
+        // Якщо передали ID - шукаємо (Редагування), якщо ні - створюємо нове
+        if (id != null && !id.isEmpty()) {
+            listing = listingRepository.findById(UUID.fromString(id))
+                    .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"));
+        } else {
+            listing = new ApartmentListing();
+        }
+
+        User author = userRepository.findById(dto.getAuthorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
+                
+        Apartment apartment = apartmentRepository.findById(dto.getApartmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Квартиру не знайдено"));
+
+        listing.setTitle(dto.getTitle());
+        listing.setPricePerMonth(dto.getPricePerMonth());
+        listing.setAuthor(author);
+        listing.setApartment(apartment);
+
+        listing = listingRepository.save(listing);
+        return convertToDto(listing); // Використовуємо твій існуючий мапер
+    }
+
 }

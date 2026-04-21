@@ -32,6 +32,7 @@ public class ApartmentListing {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+    
 
     // --- Гетери та Сетери ---
     public UUID getId() { return id; }

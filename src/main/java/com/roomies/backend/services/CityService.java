@@ -6,9 +6,11 @@ import com.roomies.backend.models.City;
 import com.roomies.backend.repositories.CityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Service // Вказує Spring, що це клас бізнес-логіки
 public class CityService {
@@ -58,10 +60,25 @@ public class CityService {
         cityRepository.delete(existingCity);
     }
 
-    // --- ДОПОМІЖНІ МЕТОДИ (Мапінг) ---
-    // Вони відповідають за перекладання даних з однієї коробки в іншу
-
     private CityDto convertToDto(City city) {
         return new CityDto(city.getId(), city.getName());
     }
+
+
+    @Transactional
+    public CityDto updateCity(int id, CityDto dto) {
+        City city = cityRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
+        city.setName(dto.getName());
+        cityRepository.save(city);
+        dto.setId(city.getId());
+        return dto;
+    }
+
+    @Transactional
+    public void deleteCity(int id) {
+        if (!cityRepository.existsById(id)) throw new ResourceNotFoundException("Місто не знайдено");
+        cityRepository.deleteById(id);
+    }
+
 }

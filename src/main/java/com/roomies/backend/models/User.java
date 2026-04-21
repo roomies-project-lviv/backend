@@ -10,7 +10,6 @@ import java.util.Map;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +72,11 @@ public class User {
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ApartmentListing> apartmentListings = new ArrayList<>();
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;
     
 
     // Гетери та Сетери
@@ -126,4 +130,8 @@ public class User {
 
     public String getPhoneNumber() { return phoneNumber; }
     public void setPhoneNumber(String phoneNumber) {this.phoneNumber = phoneNumber; }
+
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
+    
 }

@@ -29,6 +29,10 @@ public class Apartment {
     @Column(name = "available_from")
     private LocalDate availableFrom;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "city_id")
+    private City city;
+
     // --- Гетери та Сетери ---
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -54,5 +58,7 @@ public class Apartment {
     public LocalDate getAvailableFrom() { return availableFrom; }
     public void setAvailableFrom(LocalDate availableFrom) { this.availableFrom = availableFrom; }
 
+    public City getCity() { return city; }
+    public void setCity(City city) { this.city = city; }
     
 }

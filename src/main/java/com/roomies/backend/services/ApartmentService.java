@@ -1,12 +1,18 @@
 package com.roomies.backend.services;
 
+import com.roomies.backend.dto.AdminApartmentSaveDto;
 import com.roomies.backend.dto.ApartmentCreateDto;
 import com.roomies.backend.dto.ApartmentDto;
 import com.roomies.backend.exceptions.ResourceNotFoundException;
 import com.roomies.backend.models.Apartment;
+import com.roomies.backend.models.City;
 import com.roomies.backend.repositories.ApartmentRepository;
+import com.roomies.backend.repositories.CityRepository;
+import org.springframework.stereotype.Service;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +23,7 @@ public class ApartmentService {
 
     @Autowired
     private ApartmentRepository apartmentRepository;
+    private CityRepository cityRepository; 
 
     // 1. Отримати всі
     public List<ApartmentDto> getAllApartments() {
@@ -78,5 +85,32 @@ public class ApartmentService {
         return dto;
     }
 
+    public List<ApartmentDto> getAllApartmentsForAdmin() {
+        return apartmentRepository.findAll().stream()
+                .map(this::convertToDto) // Використовуємо твій існуючий мапер
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ApartmentDto saveApartmentByAdmin(String id, AdminApartmentSaveDto dto) {
+        Apartment apartment = (id != null && !id.isEmpty()) 
+            ? apartmentRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException("Квартиру не знайдено"))
+            : new Apartment();
+
+        City city = cityRepository.findById(dto.getCityId())
+            .orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
+
+        apartment.setAddress(dto.getAddress());
+        apartment.setArea(dto.getArea());
+        apartment.setRoomsTotal(dto.getRoomsTotal());
+        apartment.setCity(city);
+
+        return convertToDto(apartmentRepository.save(apartment));
+    }
+
+    @Transactional
+    public void deleteApartmentByAdmin(String id) {
+        apartmentRepository.deleteById(UUID.fromString(id));
+    }
     
 }

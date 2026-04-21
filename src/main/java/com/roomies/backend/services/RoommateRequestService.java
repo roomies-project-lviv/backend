@@ -12,6 +12,9 @@ import com.roomies.backend.repositories.RoommateRequestRepository;
 import com.roomies.backend.repositories.UserRepository;
 import com.roomies.backend.security.SecurityUtils;
 import com.roomies.backend.specifications.RoommateRequestSpecification;
+import com.roomies.backend.dto.AdminRequestSaveDto;
+import com.roomies.backend.models.City;
+import com.roomies.backend.models.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,6 +38,7 @@ public class RoommateRequestService {
     @Autowired private RoommateRequestRepository requestRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private CityRepository cityRepository;
+    @Autowired private RoommateRequestRepository roommateRequestRepository;
 
     @Autowired private SecurityUtils securityUtils;
 
@@ -122,5 +126,53 @@ public class RoommateRequestService {
         return requestRepository.findAll(spec, pageable).map(this::convertToDto);
     }
 
+
+    // Отримати всі анкети для адмінки
+    public List<RoommateRequestDto> getAllRequestsForAdmin() {
+        return requestRepository.findAll().stream().map(req -> {
+            RoommateRequestDto dto = new RoommateRequestDto();
+            dto.setId(req.getId());
+            dto.setTargetCityName(req.getTargetCity().getName());
+            dto.setBudgetMax(req.getBudgetMax());
+            dto.setAuthorFirstName(req.getAuthor().getFirstName());
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    // Видалити анкету
+    @Transactional
+    public void deleteRequestByAdmin(String id) {
+        // Конвертуємо String у UUID
+        UUID uuidId = UUID.fromString(id);
+        if (!requestRepository.existsById(uuidId)) {
+            throw new ResourceNotFoundException("Анкету не знайдено");
+        }
+        requestRepository.deleteById(uuidId);
+    }
+
+    @Transactional
+    public RoommateRequestDto saveRequestByAdmin(String id, AdminRequestSaveDto dto) {
+        RoommateRequest request = (id != null && !id.isEmpty())
+            ? roommateRequestRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException("Анкету не знайдено"))
+            : new RoommateRequest();
+
+        User author = userRepository.findById(dto.getAuthorId()).orElseThrow(() -> new ResourceNotFoundException("Автора не знайдено"));
+        City targetCity = cityRepository.findById(dto.getTargetCityId()).orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
+
+        request.getAuthor().setBio(dto.getAboutMe());;
+        request.setBudgetMax(dto.getBudgetMax());
+        request.setAuthor(author);
+        request.setTargetCity(targetCity);
+
+        // Якщо в тебе є мапер convertToDto, використовуй його. Якщо ні - мапи вручну, як в getAllRequestsForAdmin
+        RoommateRequest saved = roommateRequestRepository.save(request);
+        RoommateRequestDto result = new RoommateRequestDto();
+        result.setId(saved.getId());
+        //result.setAboutMe(saved.getAuthor().getBio());
+        result.setBudgetMax(saved.getBudgetMax());
+        result.setAuthorFirstName(saved.getAuthor().getFirstName());
+        result.setTargetCityName(saved.getTargetCity().getName());
+        return result;
+    }
 
 }

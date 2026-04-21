@@ -23,5 +23,4 @@ public class ApartmentDto {
     public String getDescription() { return description; } public void setDescription(String description) { this.description = description; }
     public LocalDate getAvailableFrom() { return availableFrom; } public void setAvailableFrom(LocalDate availableFrom) { this.availableFrom = availableFrom; }
 
-    
 }
