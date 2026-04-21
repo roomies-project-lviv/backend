@@ -33,6 +33,9 @@ public class ApartmentListing {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     // --- Гетери та Сетери ---
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -55,5 +58,7 @@ public class ApartmentListing {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     
 }

@@ -21,6 +21,7 @@ public class ApartmentListingDto {
     private String address;
     private Double area;
     private Integer roomsTotal;
+    private String imageUrl;
 
     // --- Гетери та Сетери ---
     public UUID getId() { return id; } public void setId(UUID id) { this.id = id; }
@@ -37,6 +38,8 @@ public class ApartmentListingDto {
     public String getAddress() { return address; } public void setAddress(String address) { this.address = address; }
     public Double getArea() { return area; } public void setArea(Double area) { this.area = area; }
     public Integer getRoomsTotal() { return roomsTotal; } public void setRoomsTotal(Integer roomsTotal) { this.roomsTotal = roomsTotal; }
-
+    
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     
 }

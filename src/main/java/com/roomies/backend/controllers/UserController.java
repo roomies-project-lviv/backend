@@ -21,6 +21,9 @@ public class UserController {
     @Autowired 
     private UserService userService;
 
+    @Autowired
+    private SupabaseStorageService storageService;
+
     // Отримати дані про себе
     @GetMapping("/me")
     public ResponseEntity<UserDto> getMyProfile() {
@@ -39,6 +42,17 @@ public class UserController {
         return ResponseEntity.ok(userService.updateMyPreferences(updates));
     }
 
+    @PostMapping("/me/avatar")
+    public ResponseEntity<UserDto> uploadAvatar(@RequestParam("file") MultipartFile file) throws IOException {
+    UserDto currentUser = userService.getCurrentUser(); 
+
+    String fileName = "avatar-" + currentUser.getId() + "-" + System.currentTimeMillis();
+
+    String publicUrl = storageService.uploadFile(file, "avatars", fileName);
+
+    currentUser.setAvatarUrl(publicUrl);
+    return ResponseEntity.ok(userService.updateUser(currentUser.getId(), currentUser));
+}
 /*
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {

@@ -14,6 +14,9 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/listings")
@@ -21,6 +24,9 @@ public class ApartmentListingController {
 
     @Autowired
     private ApartmentListingService listingService;
+
+    @Autowired
+    private SupabaseStorageService storageService;
 
     @GetMapping
     public ResponseEntity<Page<ApartmentListingDto>> getAllActiveListings(Pageable pageable) {
@@ -58,5 +64,23 @@ public class ApartmentListingController {
         return ResponseEntity.ok(listingService.updateListing(id, updateDto));
     }
 
+   @PostMapping("/{id}/image")
+   public ResponseEntity<ApartmentListingDto> uploadListingImage(
+        @PathVariable UUID id,
+        @RequestParam("file") MultipartFile file) throws IOException 
+        {
+    
+    ApartmentListingDto listing = listingsService.getListingById(id);
+    
+    String fileName = "listing-" + id + "-" + System.currentTimeMillis();
+    String publicUrl = storageService.uploadFile(file, "apartments", fileName);
+    
+    ApartmentListingCreateDto updateDto = new ApartmentListingCreateDto();
+    updateDto.setTitle(listing.getTitle());
+    updateDto.setPricePerMonth(listing.getPricePerMonth());
+    updateDto.setImageUrl(publicUrl); // Ось тут ми зберігаємо посилання
+    
+    return ResponseEntity.ok(listingsService.updateListing(id, updateDto));
+}
     
 }
