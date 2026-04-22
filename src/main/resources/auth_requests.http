@@ -53,7 +53,6 @@ Content-Type: application/json
 {
   "refreshToken": "{{refresh_token}}"
 }
-
 > {%
     // Очищаємо змінні після успішного виходу
     client.global.clear("auth_token");

@@ -5,12 +5,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.UUID;
 
-public class UserReviewCreateDto {
-
-    @NotNull(message = "ID цільового користувача є обов'язковим")
-    private UUID targetUserId;
+public class UserReviewUpdateDto {
 
     @NotNull(message = "Оцінка є обов'язковою")
     @Min(value = 1, message = "Мінімальна оцінка - 1")
@@ -22,9 +18,6 @@ public class UserReviewCreateDto {
     private String content;
 
     // --- Гетери та Сетери ---
-    public UUID getTargetUserId() { return targetUserId; }
-    public void setTargetUserId(UUID targetUserId) { this.targetUserId = targetUserId; }
-
     public Integer getRating() { return rating; }
     public void setRating(Integer rating) { this.rating = rating; }
 

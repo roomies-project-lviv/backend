@@ -1,0 +1,59 @@
+### ==========================================
+### ТЕСТУВАННЯ СИСТЕМИ ВІДГУКІВ (REVIEWS API)
+### ==========================================
+
+### 1. Створити новий відгук (POST /api/reviews)
+# УВАГА: Заміни "ID-ЦІЛЬОВОГО-КОРИСТУВАЧА" на реальний UUID іншої людини (не свій!).
+POST http://localhost:8080/api/reviews
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "targetUserId": "11111111-1111-1111-1111-111111111111",
+  "rating": 5,
+  "content": "Дуже класний сусід, завжди підтримує чистоту та поважає особистий простір!"
+}
+
+### 2. Спроба створити невалідний відгук (Перевірка @Valid)
+# Очікується помилка 400 Bad Request, оскільки рейтинг 6 більший за дозволений максимум (5).
+POST http://localhost:8080/api/reviews
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "targetUserId": "22222222-2222-2222-2222-222222222222",
+  "rating": 6,
+  "content": "Намагаюсь поставити неіснуючу оцінку."
+}
+
+### 3. Оновити свій відгук (PUT /api/reviews/{id})
+# УВАГА: Заміни "ID-ВІДГУКУ" на реальний id відгуку, який ти отримав у відповіді на запит №1.
+PUT http://localhost:8080/api/reviews/9f15e886-9411-4e13-a383-7fb9d207cc0c
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "rating": 4,
+  "content": "Трохи змінив свою думку. Все ще добре, але іноді буває гучно."
+}
+
+### 4. Видалити свій відгук (DELETE /api/reviews/{id})
+# УВАГА: Заміни "ID-ВІДГУКУ" на реальний id твого відгуку.
+DELETE http://localhost:8080/api/reviews/9f15e886-9411-4e13-a383-7fb9d207cc0c
+Authorization: Bearer {{auth_token}}
+
+### ==========================================
+### ПЕРЕГЛЯД ВІДГУКІВ
+### ==========================================
+
+### 5. Отримати всі відгуки про конкретного користувача
+GET http://localhost:8080/api/reviews?targetUserId=b6f277af-5c05-4a19-aebc-ef7e12aa7be2&page=0&size=10
+Authorization: Bearer {{auth_token}}
+
+### 6. Отримати відгуки ПРО МЕНЕ (Особистий кабінет)
+GET http://localhost:8080/api/reviews/me?page=0&size=10
+Authorization: Bearer {{auth_token}}
+
+### 7. Отримати МІЙ середній рейтинг
+GET http://localhost:8080/api/reviews/me/average
+Authorization: Bearer {{auth_token}}
