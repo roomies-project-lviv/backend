@@ -12,6 +12,9 @@ import com.roomies.backend.repositories.RoommateRequestRepository;
 import com.roomies.backend.repositories.UserRepository;
 import com.roomies.backend.security.SecurityUtils;
 import com.roomies.backend.specifications.RoommateRequestSpecification;
+import com.roomies.backend.dto.AdminRequestSaveDto;
+import com.roomies.backend.models.City;
+import com.roomies.backend.models.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,6 +38,7 @@ public class RoommateRequestService {
     @Autowired private RoommateRequestRepository requestRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private CityRepository cityRepository;
+    @Autowired private RoommateRequestRepository roommateRequestRepository;
 
     @Autowired private SecurityUtils securityUtils;
 
@@ -94,26 +98,31 @@ public class RoommateRequestService {
     }
 
     // --- Перекладач (Mapper) ---
-    private RoommateRequestDto convertToDto(RoommateRequest entity) {
+    private RoommateRequestDto convertToDto(RoommateRequest req) {
         RoommateRequestDto dto = new RoommateRequestDto();
-        dto.setId(entity.getId());
-        dto.setBudgetMax(entity.getBudgetMax());
-        dto.setMoveInDate(entity.getMoveInDate());
-        dto.setRequirements(entity.getRequirements());
-        dto.setIsActive(entity.getIsActive());
-        dto.setCreatedAt(entity.getCreatedAt());
-
-        if (entity.getAuthor() != null) {
-            dto.setAuthorId(entity.getAuthor().getId());
-            dto.setAuthorFirstName(entity.getAuthor().getFirstName());
-            dto.setAuthorAvatarUrl(entity.getAuthor().getAvatarUrl());
+        dto.setId(req.getId());
+        dto.setBudgetMax(req.getBudgetMax());
+        dto.setRequirements(req.getRequirements());
+        
+        if (req.getTargetCity() != null) {
+            dto.setTargetCityId(req.getTargetCity().getId());
+            dto.setTargetCityName(req.getTargetCity().getName());
         }
-
-        if (entity.getTargetCity() != null) {
-            dto.setTargetCityId(entity.getTargetCity().getId());
-            dto.setTargetCityName(entity.getTargetCity().getName());
+        
+        // --- ТУТ МАПИМО АВТОРА ТА НОВІ ПОЛЯ ---
+        if (req.getAuthor() != null) {
+            dto.setAuthorId(req.getAuthor().getId());
+            dto.setAuthorFirstName(req.getAuthor().getFirstName());
+            
+            // 1. Витягуємо дату народження напряму з User
+            dto.setAuthorBirthDate(req.getAuthor().getBirthDate());
+            
+            // 2. Витягуємо професію з LifestyleProfile (якщо профіль створено)
+            if (req.getAuthor().getLifestyleProfile() != null) {
+                dto.setAuthorOccupation(req.getAuthor().getOccupation());
+            }
         }
-
+        
         return dto;
     }
 
@@ -122,5 +131,72 @@ public class RoommateRequestService {
         return requestRepository.findAll(spec, pageable).map(this::convertToDto);
     }
 
+
+    // Отримати всі анкети для адмінки
+    public List<RoommateRequestDto> getAllRequestsForAdmin() {
+        return requestRepository.findAll().stream().map(req -> {
+            RoommateRequestDto dto = new RoommateRequestDto();
+            dto.setId(req.getId());
+            dto.setBudgetMax(req.getBudgetMax());
+            dto.setRequirements(req.getRequirements()); // ДОДАНО
+            
+            if (req.getTargetCity() != null) {
+                dto.setTargetCityId(req.getTargetCity().getId()); // ВАЖЛИВО ДЛЯ ФОРМИ!
+                dto.setTargetCityName(req.getTargetCity().getName());
+            }
+            if (req.getAuthor() != null) {
+                dto.setAuthorId(req.getAuthor().getId()); // ВАЖЛИВО ДЛЯ ФОРМИ!
+                dto.setAuthorFirstName(req.getAuthor().getFirstName());
+                dto.setAuthorBirthDate(req.getAuthor().getBirthDate());
+                if (req.getAuthor().getLifestyleProfile() != null) {
+                    dto.setAuthorOccupation(req.getAuthor().getOccupation());
+                }
+            }
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    // Видалити анкету
+    @Transactional
+    public void deleteRequestByAdmin(String id) {
+        // Конвертуємо String у UUID
+        UUID uuidId = UUID.fromString(id);
+        if (!requestRepository.existsById(uuidId)) {
+            throw new ResourceNotFoundException("Анкету не знайдено");
+        }
+        requestRepository.deleteById(uuidId);
+    }
+
+    @Transactional
+    public RoommateRequestDto saveRequestByAdmin(String id, AdminRequestSaveDto dto) {
+        RoommateRequest request = (id != null && !id.isEmpty())
+            ? roommateRequestRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException("Анкету не знайдено"))
+            : new RoommateRequest();
+
+        User author = userRepository.findById(dto.getAuthorId()).orElseThrow(() -> new ResourceNotFoundException("Автора не знайдено"));
+        City targetCity = cityRepository.findById(dto.getTargetCityId()).orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
+
+        request.setRequirements(dto.getRequirements());
+        request.setAuthor(author);
+        request.setBudgetMax(dto.getBudgetMax());
+        request.setTargetCity(targetCity);
+
+        RoommateRequest saved = roommateRequestRepository.save(request);
+        
+        RoommateRequestDto result = new RoommateRequestDto();
+        result.setId(saved.getId());
+        result.setBudgetMax(saved.getBudgetMax());
+        result.setRequirements(saved.getRequirements());
+        result.setAuthorId(saved.getAuthor().getId());
+        result.setAuthorFirstName(saved.getAuthor().getFirstName());
+        result.setAuthorBirthDate(saved.getAuthor().getBirthDate()); 
+        if (saved.getAuthor().getLifestyleProfile() != null) {
+            result.setAuthorOccupation(saved.getAuthor().getOccupation()); 
+        }
+        result.setTargetCityId(saved.getTargetCity().getId());
+        result.setTargetCityName(saved.getTargetCity().getName());
+        
+        return result;
+    }
 
 }

@@ -9,10 +9,12 @@ import com.roomies.backend.models.LifestyleProfile;
 import com.roomies.backend.models.User;
 import com.roomies.backend.repositories.UserRepository;
 import com.roomies.backend.security.SecurityUtils;
+import com.roomies.backend.models.Role;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -169,4 +171,49 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newRawPassword));
         userRepository.save(user);
     }
+
+
+    // Отримати всіх користувачів для адмінки
+    public List<UserDto> getAllUsersForAdmin() {
+        return userRepository.findAll().stream().map(user -> {
+            UserDto dto = new UserDto();
+            dto.setId(user.getId());
+            dto.setEmail(user.getEmail());
+            dto.setFirstName(user.getFirstName());
+            dto.setLastName(user.getLastName());
+            dto.setRole(user.getRole().name());
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    // Видалити користувача (без зайвих питань)
+    @Transactional
+    public void deleteUserByAdmin(UUID userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("Користувача не знайдено");
+        }
+        userRepository.deleteById(userId);
+    }
+
+    @Transactional
+    public UserDto updateUserByAdmin(UUID userId, UserDto dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
+
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        
+        if (dto.getRole() != null) {
+            user.setRole(Role.valueOf(dto.getRole())); // Оновлюємо роль
+        }
+
+        userRepository.save(user);
+
+        // Повертаємо оновлений DTO
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setRole(user.getRole().name());
+        return dto;
+    }
+
 }

@@ -6,6 +6,7 @@ import com.roomies.backend.models.PetType;
 import com.roomies.backend.repositories.PetTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,4 +56,21 @@ public class PetTypeService {
         return new PetTypeDto(entity.getId(), entity.getName());
     }
     
+
+    @Transactional
+    public PetTypeDto updatePetType(int id, PetTypeDto dto) {
+        PetType petType = petTypeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Тип тварини не знайдено"));
+        petType.setName(dto.getName());
+        petTypeRepository.save(petType);
+        dto.setId(petType.getId());
+        return dto;
+    }
+
+    @Transactional
+    public void deletePetType(int id) {
+        if (!petTypeRepository.existsById(id)) throw new ResourceNotFoundException("Тип тварини не знайдено");
+        petTypeRepository.deleteById(id);
+    }
+
 }

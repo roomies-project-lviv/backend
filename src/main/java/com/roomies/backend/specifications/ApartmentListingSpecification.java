@@ -2,8 +2,6 @@ package com.roomies.backend.specifications;
 
 import com.roomies.backend.dto.filters.ListingFilterDto;
 import com.roomies.backend.models.ApartmentListing;
-import com.roomies.backend.models.Apartment;
-import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -15,7 +13,6 @@ public class ApartmentListingSpecification {
     public static Specification<ApartmentListing> withFilter(ListingFilterDto filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            Join<ApartmentListing, Apartment> apartment = root.join("apartment");
 
             predicates.add(cb.isTrue(root.get("isActive")));
 
@@ -26,13 +23,18 @@ public class ApartmentListingSpecification {
                 predicates.add(cb.lessThanOrEqualTo(root.get("pricePerMonth"), filter.getMaxPrice()));
             }
 
+            // КІЛЬКІСТЬ КІМНАТ (Тепер напряму в root)
             if (filter.getRoomsTotal() != null && !filter.getRoomsTotal().isEmpty()) {
-                predicates.add(apartment.get("roomsTotal").in(filter.getRoomsTotal()));
+                predicates.add(root.get("roomsTotal").in(filter.getRoomsTotal()));
             }
 
+            // ПОШУК ПО МІСТУ ТА АДРЕСІ
             if (filter.getAddressSearch() != null && !filter.getAddressSearch().trim().isEmpty()) {
-                String searchPattern = "%" + filter.getAddressSearch().toLowerCase() + "%";
-                predicates.add(cb.like(cb.lower(apartment.get("address")), searchPattern));
+                String search = "%" + filter.getAddressSearch().toLowerCase() + "%";
+                // Шукаємо в адресі АБО в назві міста
+                Predicate addressMatch = cb.like(cb.lower(root.get("address")), search);
+                Predicate cityMatch = cb.like(cb.lower(root.join("city").get("name")), search);
+                predicates.add(cb.or(addressMatch, cityMatch));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

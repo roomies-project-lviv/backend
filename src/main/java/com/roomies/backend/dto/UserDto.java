@@ -20,6 +20,7 @@ public class UserDto {
     private LocalDateTime createdAt;
     private LifestyleProfile lifestyleProfile;
     private String phoneNumber;
+    private String role;
 
     // --- Гетери та Сетери ---
     public UUID getId() { return id; }
@@ -58,8 +59,6 @@ public class UserDto {
     private Integer petTypeId;
     private String petTypeName;
 
-    // --- Гетери та Сетери для нових полів ---
-
     public Integer getPetTypeId() { return petTypeId; }
     public void setPetTypeId(Integer petTypeId) { this.petTypeId = petTypeId; }
 
@@ -68,5 +67,8 @@ public class UserDto {
 
     public String getPhoneNumber() { return phoneNumber; }
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 
 }

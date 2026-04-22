@@ -17,10 +17,6 @@ public class ApartmentListing {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "apartment_id", nullable = false)
-    private Apartment apartment;
-
     @Column(nullable = false)
     private String title;
 
@@ -32,6 +28,21 @@ public class ApartmentListing {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+    
+    // ДОДАЄМО ПОЛЯ З КВАРТИРИ:
+    @Column(nullable = false)
+    private String address;
+
+    @Column(nullable = false)
+    private Double area;
+
+    @Column(nullable = false)
+    private int roomsTotal;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "city_id", nullable = false)
+    private City city;
+
 
     // --- Гетери та Сетери ---
     public UUID getId() { return id; }
@@ -39,9 +50,6 @@ public class ApartmentListing {
 
     public User getAuthor() { return author; }
     public void setAuthor(User author) { this.author = author; }
-
-    public Apartment getApartment() { return apartment; }
-    public void setApartment(Apartment apartment) { this.apartment = apartment; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -55,5 +63,16 @@ public class ApartmentListing {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
+
+    public Double getArea() { return area; }
+    public void setArea(Double area) { this.area = area; }
+
+    public int getRoomsTotal() { return roomsTotal; }
+    public void setRoomsTotal(int roomsTotal) { this.roomsTotal = roomsTotal; }
+
+    public City getCity() { return city; }
+    public void setCity(City city) { this.city = city; }
     
 }

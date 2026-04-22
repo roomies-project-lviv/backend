@@ -10,6 +10,8 @@ public class ApartmentListingDto {
     private BigDecimal pricePerMonth;
     private Boolean isActive;
     private LocalDateTime createdAt;
+    private int cityId;
+    private String cityName; 
 
     // Дані про автора
     private UUID authorId;
@@ -20,7 +22,8 @@ public class ApartmentListingDto {
     private UUID apartmentId;
     private String address;
     private Double area;
-    private Integer roomsTotal;
+    private int roomsTotal;
+    
 
     // --- Гетери та Сетери ---
     public UUID getId() { return id; } public void setId(UUID id) { this.id = id; }
@@ -28,7 +31,9 @@ public class ApartmentListingDto {
     public BigDecimal getPricePerMonth() { return pricePerMonth; } public void setPricePerMonth(BigDecimal pricePerMonth) { this.pricePerMonth = pricePerMonth; }
     public Boolean getIsActive() { return isActive; } public void setIsActive(Boolean isActive) { this.isActive = isActive; }
     public LocalDateTime getCreatedAt() { return createdAt; } public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    
+    public int getCityId() { return cityId; } public void setCityId(int cityId) { this.cityId = cityId; }
+    public String getCityName() { return cityName; } public void setCityName(String cityName) { this.cityName = cityName; }
+
     public UUID getAuthorId() { return authorId; } public void setAuthorId(UUID authorId) { this.authorId = authorId; }
     public String getAuthorFirstName() { return authorFirstName; } public void setAuthorFirstName(String authorFirstName) { this.authorFirstName = authorFirstName; }
     public String getAuthorAvatarUrl() { return authorAvatarUrl; } public void setAuthorAvatarUrl(String authorAvatarUrl) { this.authorAvatarUrl = authorAvatarUrl; }
@@ -36,7 +41,6 @@ public class ApartmentListingDto {
     public UUID getApartmentId() { return apartmentId; } public void setApartmentId(UUID apartmentId) { this.apartmentId = apartmentId; }
     public String getAddress() { return address; } public void setAddress(String address) { this.address = address; }
     public Double getArea() { return area; } public void setArea(Double area) { this.area = area; }
-    public Integer getRoomsTotal() { return roomsTotal; } public void setRoomsTotal(Integer roomsTotal) { this.roomsTotal = roomsTotal; }
+    public int getRoomsTotal() { return roomsTotal; } public void setRoomsTotal(int roomsTotal) { this.roomsTotal = roomsTotal; }
 
-    
 }

@@ -1,14 +1,15 @@
 package com.roomies.backend.services;
 
+import com.roomies.backend.dto.AdminListingSaveDto;
 import com.roomies.backend.dto.ApartmentListingCreateDto;
 import com.roomies.backend.dto.ApartmentListingDto;
 import com.roomies.backend.dto.filters.ListingFilterDto;
 import com.roomies.backend.exceptions.ResourceNotFoundException;
-import com.roomies.backend.models.Apartment;
 import com.roomies.backend.models.ApartmentListing;
+import com.roomies.backend.models.City;
 import com.roomies.backend.models.User;
 import com.roomies.backend.repositories.ApartmentListingRepository;
-import com.roomies.backend.repositories.ApartmentRepository;
+import com.roomies.backend.repositories.CityRepository;
 import com.roomies.backend.repositories.UserRepository;
 import com.roomies.backend.security.SecurityUtils;
 import com.roomies.backend.specifications.ApartmentListingSpecification;
@@ -31,7 +32,7 @@ public class ApartmentListingService {
 
     @Autowired private ApartmentListingRepository listingRepository;
     @Autowired private UserRepository userRepository;
-    @Autowired private ApartmentRepository apartmentRepository;
+    @Autowired private CityRepository cityRepository;
 
     @Autowired private SecurityUtils securityUtils;
 
@@ -45,20 +46,21 @@ public class ApartmentListingService {
         return convertToDto(listing);
     }
 
-    public ApartmentListingDto createListing(ApartmentListingCreateDto dto) {
-        User author = securityUtils.getCurrentUser();
-        
-        Apartment apartment = apartmentRepository.findById(dto.getApartmentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Квартиру не знайдено"));
+    @Transactional
+    public ApartmentListingDto createListing(ApartmentListingCreateDto dto, User author) {
+        City city = cityRepository.findById(dto.getCityId())
+                .orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
 
         ApartmentListing listing = new ApartmentListing();
-        listing.setAuthor(author);
-        listing.setApartment(apartment);
         listing.setTitle(dto.getTitle());
         listing.setPricePerMonth(dto.getPricePerMonth());
-        
-        ApartmentListing saved = listingRepository.save(listing);
-        return convertToDto(saved);
+        listing.setAddress(dto.getAddress());
+        listing.setArea(dto.getArea());
+        listing.setRoomsTotal(dto.getRoomsTotal());
+        listing.setCity(city);
+        listing.setAuthor(author);
+
+        return convertToDto(listingRepository.save(listing));
     }
 
     public void deleteListing(UUID id) {
@@ -71,22 +73,19 @@ public class ApartmentListingService {
         dto.setId(entity.getId());
         dto.setTitle(entity.getTitle());
         dto.setPricePerMonth(entity.getPricePerMonth());
-        dto.setIsActive(entity.getIsActive());
-        dto.setCreatedAt(entity.getCreatedAt());
-
-        if (entity.getAuthor() != null) {
-            dto.setAuthorId(entity.getAuthor().getId());
-            dto.setAuthorFirstName(entity.getAuthor().getFirstName());
-            dto.setAuthorAvatarUrl(entity.getAuthor().getAvatarUrl());
+        dto.setAuthorId(entity.getAuthor().getId());
+        dto.setAuthorFirstName(entity.getAuthor().getFirstName());
+        
+        // НОВЕ МАПЛЕННЯ (Без getApartment())
+        dto.setAddress(entity.getAddress());
+        dto.setArea(entity.getArea());
+        dto.setRoomsTotal(entity.getRoomsTotal());
+        
+        if (entity.getCity() != null) {
+            dto.setCityId(entity.getCity().getId());
+            dto.setCityName(entity.getCity().getName());
         }
-
-        if (entity.getApartment() != null) {
-            dto.setApartmentId(entity.getApartment().getId());
-            dto.setAddress(entity.getApartment().getAddress());
-            dto.setArea(entity.getApartment().getArea());
-            dto.setRoomsTotal(entity.getApartment().getRoomsTotal());
-        }
-
+        
         return dto;
     }
 
@@ -108,5 +107,65 @@ public class ApartmentListingService {
         return listingRepository.findAll(spec, pageable).map(this::convertToDto);
     }
 
-    
+
+    // Отримати всі оголошення для адмінки
+    public List<ApartmentListingDto> getAllListingsForAdmin() {
+        return listingRepository.findAll().stream().map(listing -> {
+            ApartmentListingDto dto = new ApartmentListingDto();
+            dto.setId(listing.getId());
+            dto.setTitle(listing.getTitle());
+            dto.setPricePerMonth(listing.getPricePerMonth());
+            
+            // ДОДАНО: Передаємо ID автора для фронтенду, щоб працював випадаючий список!
+            if (listing.getAuthor() != null) {
+                dto.setAuthorId(listing.getAuthor().getId()); 
+                dto.setAuthorFirstName(listing.getAuthor().getFirstName());
+            }
+            
+            dto.setAddress(listing.getAddress());
+            dto.setArea(listing.getArea());
+            dto.setRoomsTotal(listing.getRoomsTotal());
+            
+            if (listing.getCity() != null) {
+                dto.setCityId(listing.getCity().getId());
+                dto.setCityName(listing.getCity().getName());
+            }
+            
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    // Видалити оголошення (модерація)
+    @Transactional
+    public void deleteListingByAdmin(String id) {
+        // Конвертуємо String у UUID
+        UUID uuidId = UUID.fromString(id); 
+
+        // Тепер передаємо uuidId у репозиторій
+        if (!listingRepository.existsById(uuidId)) {
+            throw new ResourceNotFoundException("Оголошення не знайдено");
+        }
+        listingRepository.deleteById(uuidId);
+    }
+
+    @Transactional
+    public ApartmentListingDto saveListingByAdmin(String id, AdminListingSaveDto dto) {
+        ApartmentListing listing = (id != null && !id.isEmpty())
+                ? listingRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"))
+                : new ApartmentListing();
+
+        User author = userRepository.findById(dto.getAuthorId()).orElseThrow(() -> new ResourceNotFoundException("Автора не знайдено"));
+        City city = cityRepository.findById(dto.getCityId()).orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
+
+        listing.setTitle(dto.getTitle());
+        listing.setPricePerMonth(dto.getPricePerMonth());
+        listing.setAddress(dto.getAddress());
+        listing.setArea(dto.getArea());
+        listing.setRoomsTotal(dto.getRoomsTotal());
+        listing.setAuthor(author);
+        listing.setCity(city);
+
+        return convertToDto(listingRepository.save(listing));
+    }
+
 }
