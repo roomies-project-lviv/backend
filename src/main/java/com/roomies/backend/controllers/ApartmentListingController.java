@@ -3,11 +3,14 @@ package com.roomies.backend.controllers;
 import com.roomies.backend.dto.ApartmentListingCreateDto;
 import com.roomies.backend.dto.ApartmentListingDto;
 import com.roomies.backend.dto.filters.ListingFilterDto;
+import com.roomies.backend.models.User;
 import com.roomies.backend.services.ApartmentListingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import com.roomies.backend.security.SecurityUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +24,8 @@ public class ApartmentListingController {
 
     @Autowired
     private ApartmentListingService listingService;
+    @Autowired
+    private SecurityUtils securityUtils;
 
     @GetMapping
     public ResponseEntity<Page<ApartmentListingDto>> getAllActiveListings(Pageable pageable) {
@@ -44,7 +49,10 @@ public class ApartmentListingController {
 
     @PostMapping
     public ResponseEntity<ApartmentListingDto> createListing(@RequestBody ApartmentListingCreateDto createDto) {
-        return new ResponseEntity<>(listingService.createListing(createDto), HttpStatus.CREATED);
+        // Отримуємо користувача безпосередньо з SecurityUtils
+        User currentUser = securityUtils.getCurrentUser();
+        
+        return new ResponseEntity<>(listingService.createListing(createDto, currentUser), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

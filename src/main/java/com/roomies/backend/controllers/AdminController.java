@@ -14,11 +14,8 @@ import com.roomies.backend.dto.CityDto;
 import com.roomies.backend.dto.PetTypeDto;
 import com.roomies.backend.services.CityService;
 import com.roomies.backend.services.PetTypeService;
-import com.roomies.backend.dto.AdminApartmentSaveDto;
 import com.roomies.backend.dto.AdminListingSaveDto;
 import com.roomies.backend.dto.AdminRequestSaveDto;
-import com.roomies.backend.dto.ApartmentDto;
-import com.roomies.backend.services.ApartmentService;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +30,6 @@ public class AdminController {
     @Autowired private RoommateRequestService roommateRequestService;
     @Autowired private CityService cityService;
     @Autowired private PetTypeService petTypeService;
-    @Autowired private ApartmentService apartmentService;
 
     // 1. Отримати список усіх користувачів
     @GetMapping("/users")
@@ -113,26 +109,6 @@ public class AdminController {
     @PutMapping("/users/{id}")
     public ResponseEntity<UserDto> updateUser(@PathVariable UUID id, @RequestBody UserDto dto) {
         return ResponseEntity.ok(userService.updateUserByAdmin(id, dto));
-    }
-
-    // --- ОТРИМАТИ ВСІ КВАРТИРИ ДЛЯ СПИСКУ ---
-    @GetMapping("/apartments")
-    public ResponseEntity<List<ApartmentDto>> getAllApartments() {
-        return ResponseEntity.ok(apartmentService.getAllApartmentsForAdmin());
-    }
-
-    // --- КВАРТИРИ ---
-    @PostMapping("/apartments")
-    public ResponseEntity<ApartmentDto> createApartment(@RequestBody AdminApartmentSaveDto dto) {
-        return ResponseEntity.ok(apartmentService.saveApartmentByAdmin(null, dto));
-    }
-    @PutMapping("/apartments/{id}")
-    public ResponseEntity<ApartmentDto> updateApartment(@PathVariable String id, @RequestBody AdminApartmentSaveDto dto) {
-        return ResponseEntity.ok(apartmentService.saveApartmentByAdmin(id, dto));
-    }
-    @DeleteMapping("/apartments/{id}")
-    public ResponseEntity<Void> deleteApartment(@PathVariable String id) {
-        apartmentService.deleteApartmentByAdmin(id); return ResponseEntity.ok().build();
     }
 
     // --- АНКЕТИ ---

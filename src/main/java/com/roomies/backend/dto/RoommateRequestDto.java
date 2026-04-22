@@ -17,6 +17,8 @@ public class RoommateRequestDto {
     private UUID authorId;
     private String authorFirstName;
     private String authorAvatarUrl;
+    private String authorOccupation;
+    private LocalDate authorBirthDate;
     
     // Дані про бажане місто
     private Integer targetCityId;
@@ -35,6 +37,8 @@ public class RoommateRequestDto {
     public UUID getAuthorId() { return authorId; } public void setAuthorId(UUID authorId) { this.authorId = authorId; }
     public String getAuthorFirstName() { return authorFirstName; } public void setAuthorFirstName(String authorFirstName) { this.authorFirstName = authorFirstName; }
     public String getAuthorAvatarUrl() { return authorAvatarUrl; } public void setAuthorAvatarUrl(String authorAvatarUrl) { this.authorAvatarUrl = authorAvatarUrl; }
+    public String getAuthorOccupation() { return authorOccupation; } public void setAuthorOccupation(String authorOccupation) { this.authorOccupation = authorOccupation; }
+    public LocalDate getAuthorBirthDate() { return authorBirthDate; } public void setAuthorBirthDate(LocalDate authorBirthDate) { this.authorBirthDate = authorBirthDate; }
 
     public Integer getTargetCityId() { return targetCityId; } public void setTargetCityId(Integer targetCityId) { this.targetCityId = targetCityId; }
     public String getTargetCityName() { return targetCityName; } public void setTargetCityName(String targetCityName) { this.targetCityName = targetCityName; }
