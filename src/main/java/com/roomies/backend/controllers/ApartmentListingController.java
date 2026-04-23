@@ -6,6 +6,8 @@ import com.roomies.backend.dto.filters.ListingFilterDto;
 import com.roomies.backend.models.User;
 import com.roomies.backend.services.ApartmentListingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,11 +28,6 @@ public class ApartmentListingController {
     private ApartmentListingService listingService;
     @Autowired
     private SecurityUtils securityUtils;
-
-    @GetMapping
-    public ResponseEntity<Page<ApartmentListingDto>> getAllActiveListings(Pageable pageable) {
-        return ResponseEntity.ok(listingService.getAllActiveListings(pageable));
-    }
 
     // Замінюємо існуючий GET метод на POST для передачі фільтрів у тілі запиту
     @PostMapping("/search")
@@ -66,5 +63,13 @@ public class ApartmentListingController {
         return ResponseEntity.ok(listingService.updateListing(id, updateDto));
     }
 
+    @GetMapping
+    public ResponseEntity<Page<ApartmentListingDto>> getAllListings(
+            @ModelAttribute ListingFilterDto filter, // Збирає всі параметри з URL
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 20) Pageable pageable) {
+
+        Page<ApartmentListingDto> listings = listingService.getFilteredListings(filter, pageable);
+        return ResponseEntity.ok(listings);
+    }
     
 }
