@@ -108,7 +108,7 @@ public class RoommateRequestService {
             dto.setTargetCityId(req.getTargetCity().getId());
             dto.setTargetCityName(req.getTargetCity().getName());
         }
-        
+
         // --- ТУТ МАПИМО АВТОРА ТА НОВІ ПОЛЯ ---
         if (req.getAuthor() != null) {
             dto.setAuthorId(req.getAuthor().getId());
@@ -145,12 +145,10 @@ public class RoommateRequestService {
                 dto.setTargetCityName(req.getTargetCity().getName());
             }
             if (req.getAuthor() != null) {
-                dto.setAuthorId(req.getAuthor().getId()); // ВАЖЛИВО ДЛЯ ФОРМИ!
+                dto.setAuthorId(req.getAuthor().getId()); 
                 dto.setAuthorFirstName(req.getAuthor().getFirstName());
                 dto.setAuthorBirthDate(req.getAuthor().getBirthDate());
-                if (req.getAuthor().getLifestyleProfile() != null) {
-                    dto.setAuthorOccupation(req.getAuthor().getOccupation());
-                }
+                dto.setAuthorOccupation(req.getAuthor().getOccupation());
             }
             return dto;
         }).collect(Collectors.toList());
@@ -218,9 +216,7 @@ public class RoommateRequestService {
         result.setAuthorId(saved.getAuthor().getId());
         result.setAuthorFirstName(saved.getAuthor().getFirstName());
         result.setAuthorBirthDate(saved.getAuthor().getBirthDate()); 
-        if (saved.getAuthor().getLifestyleProfile() != null) {
-            result.setAuthorOccupation(saved.getAuthor().getOccupation()); 
-        }
+        result.setAuthorOccupation(saved.getAuthor().getOccupation());
         result.setTargetCityId(saved.getTargetCity().getId());
         result.setTargetCityName(saved.getTargetCity().getName());
         
