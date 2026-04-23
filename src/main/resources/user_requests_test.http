@@ -56,3 +56,31 @@ Authorization: Bearer {{auth_token}}
 # Додаємо параметри size=2 та page=0
 GET http://localhost:8080/api/users/me/potential-matches?cityId=2&size=2&page=0
 Authorization: Bearer {{auth_token}}
+
+### ==========================================
+### ТЕСТУВАННЯ ФІЛЬТРІВ ТА СОРТУВАННЯ КВАРТИР
+### ==========================================
+
+### 1. Отримати всі (За замовчуванням: Спочатку новіші)
+GET http://localhost:8080/api/listings
+Authorization: Bearer {{auth_token}}
+
+### 2. Сортування: СПОЧАТКУ СТАРІШІ
+# Передаємо sort=createdAt,asc (ascending - за зростанням)
+GET http://localhost:8080/api/listings?sort=createdAt,asc
+Authorization: Bearer {{auth_token}}
+
+### 3. Сортування: СПОЧАТКУ НОВІШІ (Явний виклик)
+# Передаємо sort=createdAt,desc (descending - за спаданням)
+GET http://localhost:8080/api/listings?sort=createdAt,desc
+Authorization: Bearer {{auth_token}}
+
+### 4. Сортування: ВІД НАЙДЕШЕВШИХ ДО НАЙДОРОЖЧИХ
+# Можна сортувати за будь-яким полем моделі!
+GET http://localhost:8080/api/listings?sort=pricePerMonth,asc
+Authorization: Bearer {{auth_token}}
+
+### 5. Комбінація: Фільтри + Сортування
+# Шукаємо квартири у місті 1, дешевші за 15000, і сортуємо їх від найбільшої площі до найменшої
+GET http://localhost:8080/api/listings?cityId=2&maxPrice=8000&sort=area,desc
+Authorization: Bearer {{auth_token}}

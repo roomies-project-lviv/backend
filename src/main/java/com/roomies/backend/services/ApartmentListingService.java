@@ -168,4 +168,10 @@ public class ApartmentListingService {
         return convertToDto(listingRepository.save(listing));
     }
 
+    // Метод для отримання фільтрованого списку
+    public Page<ApartmentListingDto> getFilteredListings(ListingFilterDto filter, Pageable pageable) {
+        Specification<ApartmentListing> spec = ApartmentListingSpecification.withFilter(filter);
+        return listingRepository.findAll(spec, pageable)
+                .map(this::convertToDto);
+    }
 }
