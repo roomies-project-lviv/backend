@@ -167,6 +167,34 @@ public class RoommateRequestService {
         requestRepository.deleteById(uuidId);
     }
 
+    // Метод для фільтрації анкет за допомогою RoommateFilterDto
+    public List<RoommateRequestDto> searchRequests(RoommateFilterDto filter) {
+        // 1. Шукаємо базу (бюджет, місто, вік, стать)
+        Specification<RoommateRequest> spec = RoommateRequestSpecification.withFilter(filter);
+        List<RoommateRequest> requests = requestRepository.findAll(spec);
+
+        // 2. Фільтруємо Лайфстайл (JSONB) у пам'яті
+        return requests.stream().filter(req -> {
+            if (req.getAuthor() == null || req.getAuthor().getLifestyleProfile() == null) return true;
+            
+            var lifestyle = req.getAuthor().getLifestyleProfile();
+
+            if (filter.getIsSmoker() != null && !filter.getIsSmoker().equals(lifestyle.getIsSmoker())) return false;
+            if (filter.getPartyHabits() != null && !filter.getPartyHabits().equals(lifestyle.getPartyHabits())) return false;
+            if (filter.getDrinksAlcohol() != null && !filter.getDrinksAlcohol().equals(lifestyle.getDrinksAlcohol())) return false;
+            
+            if (filter.getSleepSchedule() != null && !filter.getSleepSchedule().isEmpty() && !filter.getSleepSchedule().equals(lifestyle.getSleepSchedule())) return false;
+            if (filter.getNoiseTolerance() != null && !filter.getNoiseTolerance().isEmpty() && !filter.getNoiseTolerance().equals(lifestyle.getNoiseTolerance())) return false;
+            if (filter.getGuestsFrequency() != null && !filter.getGuestsFrequency().isEmpty() && !filter.getGuestsFrequency().equals(lifestyle.getGuestsFrequency())) return false;
+            if (filter.getCleanlinessLevel() != null && !filter.getCleanlinessLevel().isEmpty() && !filter.getCleanlinessLevel().equals(lifestyle.getCleanlinessLevel())) return false;
+            if (filter.getDietaryPreferences() != null && !filter.getDietaryPreferences().isEmpty() && !filter.getDietaryPreferences().equals(lifestyle.getDietaryPreferences())) return false;
+
+            return true;
+        })
+        .map(this::convertToDto)
+        .collect(Collectors.toList());
+    }
+
     @Transactional
     public RoommateRequestDto saveRequestByAdmin(String id, AdminRequestSaveDto dto) {
         RoommateRequest request = (id != null && !id.isEmpty())
