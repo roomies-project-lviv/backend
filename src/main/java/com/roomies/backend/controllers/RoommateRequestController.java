@@ -29,12 +29,13 @@ public class RoommateRequestController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<Page<RoommateRequestDto>> searchRequests(
-            @RequestBody(required = false) RoommateFilterDto filterDto, 
-            Pageable pageable) {
+    public ResponseEntity<List<RoommateRequestDto>> searchRequests(
+            @RequestBody(required = false) RoommateFilterDto filterDto) {
         
         if (filterDto == null) filterDto = new RoommateFilterDto();
-        return ResponseEntity.ok(requestService.getAllActiveRequests(filterDto, pageable));
+        
+        // ВАЖЛИВО: Викликаємо метод, який фільтрує JSONB!
+        return ResponseEntity.ok(requestService.searchRequests(filterDto));
     }
 
     @GetMapping("/{id}")

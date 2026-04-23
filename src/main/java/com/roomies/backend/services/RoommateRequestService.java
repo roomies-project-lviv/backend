@@ -108,7 +108,7 @@ public class RoommateRequestService {
             dto.setTargetCityId(req.getTargetCity().getId());
             dto.setTargetCityName(req.getTargetCity().getName());
         }
-        
+
         // --- ТУТ МАПИМО АВТОРА ТА НОВІ ПОЛЯ ---
         if (req.getAuthor() != null) {
             dto.setAuthorId(req.getAuthor().getId());
@@ -145,12 +145,10 @@ public class RoommateRequestService {
                 dto.setTargetCityName(req.getTargetCity().getName());
             }
             if (req.getAuthor() != null) {
-                dto.setAuthorId(req.getAuthor().getId()); // ВАЖЛИВО ДЛЯ ФОРМИ!
+                dto.setAuthorId(req.getAuthor().getId()); 
                 dto.setAuthorFirstName(req.getAuthor().getFirstName());
                 dto.setAuthorBirthDate(req.getAuthor().getBirthDate());
-                if (req.getAuthor().getLifestyleProfile() != null) {
-                    dto.setAuthorOccupation(req.getAuthor().getOccupation());
-                }
+                dto.setAuthorOccupation(req.getAuthor().getOccupation());
             }
             return dto;
         }).collect(Collectors.toList());
@@ -165,6 +163,34 @@ public class RoommateRequestService {
             throw new ResourceNotFoundException("Анкету не знайдено");
         }
         requestRepository.deleteById(uuidId);
+    }
+
+    // Метод для фільтрації анкет за допомогою RoommateFilterDto
+    public List<RoommateRequestDto> searchRequests(RoommateFilterDto filter) {
+        // 1. Шукаємо базу (бюджет, місто, вік, стать)
+        Specification<RoommateRequest> spec = RoommateRequestSpecification.withFilter(filter);
+        List<RoommateRequest> requests = requestRepository.findAll(spec);
+
+        // 2. Фільтруємо Лайфстайл (JSONB) у пам'яті
+        return requests.stream().filter(req -> {
+            if (req.getAuthor() == null || req.getAuthor().getLifestyleProfile() == null) return true;
+            
+            var lifestyle = req.getAuthor().getLifestyleProfile();
+
+            if (filter.getIsSmoker() != null && !filter.getIsSmoker().equals(lifestyle.getIsSmoker())) return false;
+            if (filter.getPartyHabits() != null && !filter.getPartyHabits().equals(lifestyle.getPartyHabits())) return false;
+            if (filter.getDrinksAlcohol() != null && !filter.getDrinksAlcohol().equals(lifestyle.getDrinksAlcohol())) return false;
+            
+            if (filter.getSleepSchedule() != null && !filter.getSleepSchedule().isEmpty() && !filter.getSleepSchedule().equals(lifestyle.getSleepSchedule())) return false;
+            if (filter.getNoiseTolerance() != null && !filter.getNoiseTolerance().isEmpty() && !filter.getNoiseTolerance().equals(lifestyle.getNoiseTolerance())) return false;
+            if (filter.getGuestsFrequency() != null && !filter.getGuestsFrequency().isEmpty() && !filter.getGuestsFrequency().equals(lifestyle.getGuestsFrequency())) return false;
+            if (filter.getCleanlinessLevel() != null && !filter.getCleanlinessLevel().isEmpty() && !filter.getCleanlinessLevel().equals(lifestyle.getCleanlinessLevel())) return false;
+            if (filter.getDietaryPreferences() != null && !filter.getDietaryPreferences().isEmpty() && !filter.getDietaryPreferences().equals(lifestyle.getDietaryPreferences())) return false;
+
+            return true;
+        })
+        .map(this::convertToDto)
+        .collect(Collectors.toList());
     }
 
     @Transactional
@@ -190,9 +216,7 @@ public class RoommateRequestService {
         result.setAuthorId(saved.getAuthor().getId());
         result.setAuthorFirstName(saved.getAuthor().getFirstName());
         result.setAuthorBirthDate(saved.getAuthor().getBirthDate()); 
-        if (saved.getAuthor().getLifestyleProfile() != null) {
-            result.setAuthorOccupation(saved.getAuthor().getOccupation()); 
-        }
+        result.setAuthorOccupation(saved.getAuthor().getOccupation());
         result.setTargetCityId(saved.getTargetCity().getId());
         result.setTargetCityName(saved.getTargetCity().getName());
         
