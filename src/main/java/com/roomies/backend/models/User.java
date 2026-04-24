@@ -58,11 +58,6 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    // Зв'язок із таблицею pet_types
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pet_type_id") // Назва колонки в таблиці users
-    private PetType petType;
-
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private UserWorkSchedule workSchedule;
 
@@ -115,9 +110,6 @@ public class User {
 
     public LifestyleProfile getLifestyleProfile() { return lifestyleProfile; }
     public void setLifestyleProfile(LifestyleProfile lifestyleProfile) { this.lifestyleProfile = lifestyleProfile; }
-
-    public PetType getPetType() { return petType; }
-    public void setPetType(PetType petType) { this.petType = petType; }
 
     public UserWorkSchedule getWorkSchedule() { return workSchedule; }
     public void setWorkSchedule(UserWorkSchedule workSchedule) { this.workSchedule = workSchedule; }

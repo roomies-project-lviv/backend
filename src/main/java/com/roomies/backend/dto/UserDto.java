@@ -56,15 +56,6 @@ public class UserDto {
     public LifestyleProfile getLifestyleProfile() { return lifestyleProfile; }
     public void setLifestyleProfile(LifestyleProfile lifestyleProfile) { this.lifestyleProfile = lifestyleProfile; }
 
-    private Integer petTypeId;
-    private String petTypeName;
-
-    public Integer getPetTypeId() { return petTypeId; }
-    public void setPetTypeId(Integer petTypeId) { this.petTypeId = petTypeId; }
-
-    public String getPetTypeName() { return petTypeName; }
-    public void setPetTypeName(String petTypeName) { this.petTypeName = petTypeName; }
-
     public String getPhoneNumber() { return phoneNumber; }
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 

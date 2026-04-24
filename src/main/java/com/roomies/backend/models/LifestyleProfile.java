@@ -13,6 +13,7 @@ public class LifestyleProfile implements Serializable {
     private Boolean isSmoker;
     private Boolean drinksAlcohol;
     private Boolean partyHabits;
+    private String pet;
 
     // Геттери та Сеттери
     public String getSleepSchedule() { return sleepSchedule; }
@@ -38,4 +39,8 @@ public class LifestyleProfile implements Serializable {
 
     public Boolean getPartyHabits() { return partyHabits; }
     public void setPartyHabits(Boolean partyHabits) { this.partyHabits = partyHabits; }
+
+    public String getPet() { return pet; }
+    public void setPet(String pet) { this.pet = pet; }
+
 }
