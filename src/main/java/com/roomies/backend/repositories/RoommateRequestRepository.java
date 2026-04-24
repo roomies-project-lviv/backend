@@ -23,16 +23,15 @@ public interface RoommateRequestRepository extends JpaRepository<RoommateRequest
 
     @Query(value =
             "SELECT r.id AS requestId, " +
-                    // Порівняння булевих прапорців (кастимо значення з JSONB до boolean)
-                    "(CASE WHEN CAST(u.lifestyle_flags->>'isSmoker' AS boolean) = :isSmoker THEN 10 ELSE 0 END + " +
-                    " CASE WHEN CAST(u.lifestyle_flags->>'drinksAlcohol' AS boolean) = :drinksAlcohol THEN 10 ELSE 0 END + " +
+                    "(CASE WHEN CAST(u.lifestyle_flags->>'isSmoker' AS boolean) = :isSmoker THEN 25 ELSE 0 END + " +
+                    " CASE WHEN CAST(u.lifestyle_flags->>'drinksAlcohol' AS boolean) = :drinksAlcohol THEN 15 ELSE 0 END + " +
                     " CASE WHEN CAST(u.lifestyle_flags->>'partyHabits' AS boolean) = :partyHabits THEN 10 ELSE 0 END + " +
-                    // Порівняння рядкових значень
-                    " CASE WHEN u.lifestyle_flags->>'sleepSchedule' = :sleep THEN 20 ELSE 0 END + " +
-                    " CASE WHEN u.lifestyle_flags->>'cleanlinessLevel' = :clean THEN 20 ELSE 0 END + " +
+                    " CASE WHEN u.lifestyle_flags->>'sleepSchedule' = :sleep THEN 10 ELSE 0 END + " +
+                    " CASE WHEN u.lifestyle_flags->>'cleanlinessLevel' = :clean THEN 15 ELSE 0 END + " +
                     " CASE WHEN u.lifestyle_flags->>'noiseTolerance' = :noise THEN 15 ELSE 0 END + " +
                     " CASE WHEN u.lifestyle_flags->>'guestsFrequency' = :guests THEN 10 ELSE 0 END + " +
-                    " CASE WHEN u.lifestyle_flags->>'dietaryPreferences' = :diet THEN 5 ELSE 0 END) AS matchPercentage " +
+                    " CASE WHEN u.lifestyle_flags->>'dietaryPreferences' = :diet THEN 5 ELSE 0 END + " +
+                    " CASE WHEN u.lifestyle_flags->>'pet' = :pet THEN 15 ELSE 0 END) AS matchPercentage " +
                     "FROM roommate_requests r " +
                     "JOIN users u ON r.user_id = u.id " +
                     "WHERE r.is_active = true " +
@@ -52,5 +51,6 @@ public interface RoommateRequestRepository extends JpaRepository<RoommateRequest
             @Param("noise") String noise,
             @Param("guests") String guests,
             @Param("diet") String diet,
+            @Param("pet") String pet,
             Pageable pageable);
 }

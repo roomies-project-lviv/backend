@@ -11,9 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.roomies.backend.dto.CityDto;
-import com.roomies.backend.dto.PetTypeDto;
 import com.roomies.backend.services.CityService;
-import com.roomies.backend.services.PetTypeService;
 import com.roomies.backend.dto.AdminListingSaveDto;
 import com.roomies.backend.dto.AdminRequestSaveDto;
 
@@ -29,7 +27,6 @@ public class AdminController {
     @Autowired private ApartmentListingService apartmentListingService;
     @Autowired private RoommateRequestService roommateRequestService;
     @Autowired private CityService cityService;
-    @Autowired private PetTypeService petTypeService;
 
     // 1. Отримати список усіх користувачів
     @GetMapping("/users")
@@ -92,19 +89,6 @@ public class AdminController {
     @DeleteMapping("/cities/{id}")
     public ResponseEntity<Void> deleteCity(@PathVariable int id) { cityService.deleteCity(id); return ResponseEntity.ok().build(); }
 
-    // --- ТИПИ ТВАРИН (PET TYPES) ---
-    @GetMapping("/pet-types")
-    public ResponseEntity<List<PetTypeDto>> getAllPetTypes() { return ResponseEntity.ok(petTypeService.getAllPetTypes()); }
-
-    @PostMapping("/pet-types")
-    public ResponseEntity<PetTypeDto> createPetType(@RequestBody PetTypeDto dto) { return ResponseEntity.ok(petTypeService.createPetType(dto)); }
-
-    @PutMapping("/pet-types/{id}")
-    public ResponseEntity<PetTypeDto> updatePetType(@PathVariable int id, @RequestBody PetTypeDto dto) { return ResponseEntity.ok(petTypeService.updatePetType(id, dto)); }
-
-    @DeleteMapping("/pet-types/{id}")
-    public ResponseEntity<Void> deletePetType(@PathVariable int id) { petTypeService.deletePetType(id); return ResponseEntity.ok().build(); }
-
     // --- Зміна ролі користувача ---
     @PutMapping("/users/{id}")
     public ResponseEntity<UserDto> updateUser(@PathVariable UUID id, @RequestBody UserDto dto) {
@@ -116,6 +100,7 @@ public class AdminController {
     public ResponseEntity<RoommateRequestDto> createRoommateRequest(@RequestBody AdminRequestSaveDto dto) {
         return ResponseEntity.ok(roommateRequestService.saveRequestByAdmin(null, dto));
     }
+
     @PutMapping("/roommate-requests/{id}")
     public ResponseEntity<RoommateRequestDto> updateRoommateRequest(@PathVariable String id, @RequestBody AdminRequestSaveDto dto) {
         return ResponseEntity.ok(roommateRequestService.saveRequestByAdmin(id, dto));

@@ -28,8 +28,6 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private com.roomies.backend.repositories.PetTypeRepository petTypeRepository;
 
     @Autowired
     private SecurityUtils securityUtils;
@@ -94,14 +92,6 @@ public class UserService {
         existingUser.setBio(updateDto.getBio());
         existingUser.setPhoneNumber(updateDto.getPhoneNumber());
 
-        if (updateDto.getPetTypeId() != null) {
-            com.roomies.backend.models.PetType petType = petTypeRepository.findById(updateDto.getPetTypeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Pet Type not found"));
-            existingUser.setPetType(petType);
-        } else {
-            existingUser.setPetType(null);
-        }
-
         User updatedUser = userRepository.save(existingUser);
         return convertToDto(updatedUser);
     }
@@ -125,7 +115,7 @@ public class UserService {
         if (updates.containsKey("isSmoker")) profile.setIsSmoker((Boolean) updates.get("isSmoker"));
         if (updates.containsKey("drinksAlcohol")) profile.setDrinksAlcohol((Boolean) updates.get("drinksAlcohol"));
         if (updates.containsKey("partyHabits")) profile.setPartyHabits((Boolean) updates.get("partyHabits"));
-
+        if (updates.containsKey("pet")) profile.setPet((String) updates.get("pet"));
         // Зберігаємо профіль в користувача
         existingUser.setLifestyleProfile(profile);
 
@@ -152,11 +142,6 @@ public class UserService {
         dto.setBio(user.getBio());
         dto.setCreatedAt(user.getCreatedAt());
         dto.setPhoneNumber(user.getPhoneNumber());
-
-        if (user.getPetType() != null) {
-            dto.setPetTypeId(user.getPetType().getId());
-            dto.setPetTypeName(user.getPetType().getName());
-        }
 
         // Просто передаємо об'єкт (Spring/Jackson сам перетворить його у правильний JSON для фронтенда)
         dto.setLifestyleProfile(user.getLifestyleProfile());
