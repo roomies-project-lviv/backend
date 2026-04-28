@@ -24,6 +24,9 @@ public class ApartmentListingDto {
     private Double area;
     private int roomsTotal;
     
+    // Географічні координати
+    private Double latitude;
+    private Double longitude;
 
     // --- Гетери та Сетери ---
     public UUID getId() { return id; } public void setId(UUID id) { this.id = id; }
@@ -43,4 +46,6 @@ public class ApartmentListingDto {
     public Double getArea() { return area; } public void setArea(Double area) { this.area = area; }
     public int getRoomsTotal() { return roomsTotal; } public void setRoomsTotal(int roomsTotal) { this.roomsTotal = roomsTotal; }
 
+    public Double getLatitude() { return latitude; } public void setLatitude(Double latitude) { this.latitude = latitude; }
+    public Double getLongitude() { return longitude; } public void setLongitude(Double longitude) { this.longitude = longitude; }
 }

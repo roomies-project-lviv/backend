@@ -62,6 +62,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
+                //.requestMatchers("/api/**").permitAll() // Дозволяємо всі запити до /api/ без аутентифікації, але всередині контролерів ми будемо перевіряти токен та ролі
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/listings/**").permitAll()
@@ -69,10 +70,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/roommates/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/roommates/search").permitAll()
                 .requestMatchers("/ws/**").permitAll()  // Дозволяємо ініціювати WebSocket з'єднання всім, але всередині ми перевіримо токен через JwtChannelInterceptor
+                .requestMatchers("/api/auth/**", "/api/password-reset/**", "/ws/**", "/api/cities").permitAll()
 
                 // Дозволяємо внутрішні помилки та OPTIONS запити від Angular
                 .requestMatchers("/error").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                 .anyRequest().authenticated()
             )

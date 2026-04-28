@@ -21,6 +21,7 @@ public class UserDto {
     private LifestyleProfile lifestyleProfile;
     private String phoneNumber;
     private String role;
+    
 
     // --- Гетери та Сетери ---
     public UUID getId() { return id; }

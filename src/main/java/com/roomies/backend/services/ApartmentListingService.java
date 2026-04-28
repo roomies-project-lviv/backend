@@ -14,9 +14,13 @@ import com.roomies.backend.repositories.UserRepository;
 import com.roomies.backend.security.SecurityUtils;
 import com.roomies.backend.specifications.ApartmentListingSpecification;
 
+import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,8 +37,8 @@ public class ApartmentListingService {
     @Autowired private ApartmentListingRepository listingRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private CityRepository cityRepository;
-
     @Autowired private SecurityUtils securityUtils;
+    private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
     public Page<ApartmentListingDto> getAllActiveListings(Pageable pageable) {
         return listingRepository.findByIsActiveTrue(pageable).map(this::convertToDto);
@@ -59,6 +63,11 @@ public class ApartmentListingService {
         listing.setRoomsTotal(dto.getRoomsTotal());
         listing.setCity(city);
         listing.setAuthor(author);
+
+        if (dto.getLatitude() != null && dto.getLongitude() != null) {
+            Point location = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
+            listing.setLocation(location);
+        }
 
         return convertToDto(listingRepository.save(listing));
     }
@@ -85,6 +94,12 @@ public class ApartmentListingService {
             dto.setCityId(entity.getCity().getId());
             dto.setCityName(entity.getCity().getName());
         }
+
+        if (entity.getLocation() != null) {
+            // У JTS Point: X - це довгота (longitude), Y - це широта (latitude)
+            dto.setLongitude(entity.getLocation().getX());
+            dto.setLatitude(entity.getLocation().getY());
+        }
         
         return dto;
     }
@@ -97,6 +112,20 @@ public class ApartmentListingService {
         // але якщо треба, можна оновлювати й інші поля
         existing.setTitle(dto.getTitle());
         existing.setPricePerMonth(dto.getPricePerMonth());
+        existing.setArea(dto.getArea());
+        existing.setAddress(dto.getAddress());
+        existing.setRoomsTotal(dto.getRoomsTotal());
+    
+        if (dto.getCityId() != 0) {
+            City city = cityRepository.findById(dto.getCityId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
+            existing.setCity(city);
+        }
+
+        if (dto.getLatitude() != null && dto.getLongitude() != null) {
+            Point location = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
+            existing.setLocation(location);
+        }
 
         ApartmentListing updated = listingRepository.save(existing);
         return convertToDto(updated);

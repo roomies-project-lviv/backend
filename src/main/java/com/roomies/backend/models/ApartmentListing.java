@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import org.locationtech.jts.geom.Point;
 
 @Entity
 @Table(name = "apartment_listings")
@@ -43,6 +44,8 @@ public class ApartmentListing {
     @JoinColumn(name = "city_id", nullable = false)
     private City city;
 
+    @Column(columnDefinition = "geometry(Point,4326)")
+    private Point location;
 
     // --- Гетери та Сетери ---
     public UUID getId() { return id; }
@@ -74,5 +77,8 @@ public class ApartmentListing {
 
     public City getCity() { return city; }
     public void setCity(City city) { this.city = city; }
+    
+    public Point getLocation() { return location; }
+    public void setLocation(Point location) { this.location = location; }
     
 }
