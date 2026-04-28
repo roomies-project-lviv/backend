@@ -31,7 +31,8 @@ public interface RoommateRequestRepository extends JpaRepository<RoommateRequest
                     " CASE WHEN u.lifestyle_flags->>'noiseTolerance' = :noise THEN 15 ELSE 0 END + " +
                     " CASE WHEN u.lifestyle_flags->>'guestsFrequency' = :guests THEN 10 ELSE 0 END + " +
                     " CASE WHEN u.lifestyle_flags->>'dietaryPreferences' = :diet THEN 5 ELSE 0 END + " +
-                    " CASE WHEN u.lifestyle_flags->>'pet' = :pet THEN 15 ELSE 0 END) AS matchPercentage " +
+                    " CASE WHEN u.lifestyle_flags->>'pet' = :pet THEN 15 ELSE 0 END + " +
+                    " CASE WHEN u.lifestyle_flags->>'workModel' = 'student' AND cast(:workModel AS varchar) = 'student' THEN 5 ELSE 0 END) AS matchPercentage " +
                     "FROM roommate_requests r " +
                     "JOIN users u ON r.user_id = u.id " +
                     "WHERE r.is_active = true " +
@@ -52,5 +53,6 @@ public interface RoommateRequestRepository extends JpaRepository<RoommateRequest
             @Param("guests") String guests,
             @Param("diet") String diet,
             @Param("pet") String pet,
+            @Param("workModel") String workModel, // ДОДАНО ПАРАМЕТР
             Pageable pageable);
 }

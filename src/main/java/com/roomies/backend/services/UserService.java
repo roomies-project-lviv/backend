@@ -115,7 +115,10 @@ public class UserService {
         if (updates.containsKey("drinksAlcohol")) profile.setDrinksAlcohol((Boolean) updates.get("drinksAlcohol"));
         if (updates.containsKey("partyHabits")) profile.setPartyHabits((Boolean) updates.get("partyHabits"));
         if (updates.containsKey("pet")) profile.setPet((String) updates.get("pet"));
-        // Зберігаємо профіль в користувача
+        if (updates.containsKey("workModel")) profile.setWorkModel((String) updates.get("workModel"));
+        if (updates.containsKey("workRegime")) profile.setWorkRegime((String) updates.get("workRegime"));
+        if (updates.containsKey("workSchedule")) profile.setWorkSchedule((String) updates.get("workSchedule"));
+
         existingUser.setLifestyleProfile(profile);
 
         User updatedUser = userRepository.save(existingUser);

@@ -30,6 +30,7 @@ public class UserReviewController {
         return ResponseEntity.ok(reviewService.getReviewsForUser(targetUserId, pageable));
     }
 
+
     // ВИПРАВЛЕНО: Тепер це GET /api/reviews/average із параметром
     @GetMapping("/average")
     public ResponseEntity<Double> getAverageRating(@RequestParam UUID targetUserId) {

@@ -58,10 +58,6 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private UserWorkSchedule workSchedule;
-
-    
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserSocialLink> socialLinks = new ArrayList<>();
 
@@ -109,9 +105,6 @@ public class User {
 
     public LifestyleProfile getLifestyleProfile() { return lifestyleProfile; }
     public void setLifestyleProfile(LifestyleProfile lifestyleProfile) { this.lifestyleProfile = lifestyleProfile; }
-
-    public UserWorkSchedule getWorkSchedule() { return workSchedule; }
-    public void setWorkSchedule(UserWorkSchedule workSchedule) { this.workSchedule = workSchedule; }
 
     public List<UserSocialLink> getSocialLinks() { return socialLinks; }
     public void setSocialLinks(List<UserSocialLink> socialLinks) { this.socialLinks = socialLinks; }
