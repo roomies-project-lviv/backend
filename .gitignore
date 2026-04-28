@@ -58,3 +58,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### City create files ###
+cities.json
+CityDataSeeder.java

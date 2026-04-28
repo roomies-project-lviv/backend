@@ -5,6 +5,11 @@ import com.roomies.backend.models.ApartmentListing;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +25,17 @@ public class ApartmentListingSpecification {
             // Фільтр за містом (точний ID)
             if (filter.getCityId() != null) {
                 predicates.add(cb.equal(root.get("city").get("id"), filter.getCityId()));
+            }
+
+            // ПОШУК У РАДІУСІ (POSTGIS ST_DWithin)
+            if (filter.getRadiusLat() != null && filter.getRadiusLng() != null && filter.getRadiusKm() != null) {
+                GeometryFactory gf = new GeometryFactory(new PrecisionModel(), 4326);
+                Point center = gf.createPoint(new Coordinate(filter.getRadiusLng(), filter.getRadiusLat()));
+                
+                // В 1 градусі координат приблизно 111.32 км
+                double radiusDegrees = filter.getRadiusKm() / 111.32;
+                
+                predicates.add(cb.isTrue(cb.function("ST_DWithin", Boolean.class, root.get("location"), cb.literal(center), cb.literal(radiusDegrees))));
             }
 
             // ЦІНА

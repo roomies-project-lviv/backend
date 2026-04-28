@@ -11,6 +11,9 @@ public class ListingFilterDto {
     private Double minArea;
     private Double maxArea;
     private String addressSearch; // Пошук по вулиці/району
+    private Double radiusLat;
+    private Double radiusLng;
+    private Double radiusKm;
 
     // --- Гетери та Сетери ---
     public Long getCityId() { return cityId; }
@@ -33,4 +36,14 @@ public class ListingFilterDto {
 
     public String getAddressSearch() { return addressSearch; }
     public void setAddressSearch(String addressSearch) { this.addressSearch = addressSearch; }
+
+    public Double getRadiusLat() { return radiusLat; } 
+    public void setRadiusLat(Double radiusLat) { this.radiusLat = radiusLat; }
+    
+    public Double getRadiusLng() { return radiusLng; } 
+    public void setRadiusLng(Double radiusLng) { this.radiusLng = radiusLng; }
+    
+    public Double getRadiusKm() { return radiusKm; } 
+    public void setRadiusKm(Double radiusKm) { this.radiusKm = radiusKm; }
+    
 }

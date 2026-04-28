@@ -28,7 +28,6 @@ public class UserCreateDto {
             message = "Номер телефону повинен бути у форматі +380XXXXXXXXX"
     )
     private String phoneNumber;
-
     private LocalDate birthDate;
     private String gender;
 
