@@ -10,8 +10,7 @@ Content-Type: application/json
   "email": "mike_test@mail.com",
   "password": "VerySecurePass123",
   "firstName": "Михайло",
-  "lastName": "Борщівник",
-  "phoneNumber": "+380631234567"
+  "lastName": "Борщівник"
 }
 
 > {%

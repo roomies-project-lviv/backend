@@ -55,9 +55,6 @@ public class User {
     @Column(name = "lifestyle_flags", columnDefinition = "jsonb")
     private LifestyleProfile lifestyleProfile;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserSocialLink> socialLinks = new ArrayList<>();
 
@@ -111,9 +108,6 @@ public class User {
 
     public List<ApartmentListing> getApartmentListings() { return apartmentListings; }
     public void setApartmentListings(List<ApartmentListing> apartmentListings) { this.apartmentListings = apartmentListings; }
-
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) {this.phoneNumber = phoneNumber; }
 
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }

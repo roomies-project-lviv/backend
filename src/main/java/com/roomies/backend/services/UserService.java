@@ -66,7 +66,6 @@ public class UserService {
 
         User user = new User();
         user.setPassword(passwordEncoder.encode(createDto.getPassword()));
-        user.setPhoneNumber(createDto.getPhoneNumber());
         user.setEmail(createDto.getEmail());
         user.setFirstName(createDto.getFirstName());
         user.setLastName(createDto.getLastName());
@@ -89,7 +88,8 @@ public class UserService {
         existingUser.setAvatarUrl(updateDto.getAvatarUrl());
         existingUser.setOccupation(updateDto.getOccupation());
         existingUser.setBio(updateDto.getBio());
-        existingUser.setPhoneNumber(updateDto.getPhoneNumber());
+
+        existingUser.setLifestyleProfile(updateDto.getLifestyleProfile());
 
         User updatedUser = userRepository.save(existingUser);
         return convertToDto(updatedUser);
@@ -143,8 +143,6 @@ public class UserService {
         dto.setOccupation(user.getOccupation());
         dto.setBio(user.getBio());
         dto.setCreatedAt(user.getCreatedAt());
-        dto.setPhoneNumber(user.getPhoneNumber());
-
         // Просто передаємо об'єкт (Spring/Jackson сам перетворить його у правильний JSON для фронтенда)
         dto.setLifestyleProfile(user.getLifestyleProfile());
 
