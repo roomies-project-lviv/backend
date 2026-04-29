@@ -15,7 +15,21 @@ public class LifestyleProfile implements Serializable {
     private Boolean partyHabits;
     private String pet;
 
-    // Геттери та Сеттери
+    // НОВІ ПОЛЯ ДЛЯ РОБОТИ/НАВЧАННЯ
+    private String workModel;
+    private String workRegime;
+    private String workSchedule;
+
+    // --- Гетери та Сетери ---
+    public String getWorkModel() { return workModel; }
+    public void setWorkModel(String workModel) { this.workModel = workModel; }
+
+    public String getWorkRegime() { return workRegime; }
+    public void setWorkRegime(String workRegime) { this.workRegime = workRegime; }
+
+    public String getWorkSchedule() { return workSchedule; }
+    public void setWorkSchedule(String workSchedule) { this.workSchedule = workSchedule; }
+
     public String getSleepSchedule() { return sleepSchedule; }
     public void setSleepSchedule(String sleepSchedule) { this.sleepSchedule = sleepSchedule; }
 

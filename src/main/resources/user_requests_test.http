@@ -24,22 +24,35 @@ Authorization: Bearer {{auth_token}}
   "avatarUrl": "https://example.com/my-new-avatar.png"
 }
 
-### 3. Частково оновити свої налаштування та звички (PATCH /me/preferences)
-# Ці дані автоматично запакуються в JSONB колонку lifestyle_flags у базі даних
+### ==========================================
+### ОНОВЛЕННЯ ЗВИЧОК ТА СПОСОБУ ЖИТТЯ (LIFESTYLE)
+### ==========================================
+
+### Оновити всі прапорці способу життя (Preferences)
+# Цей запит перевіряє маппінг усіх полів у LifestyleProfile, включаючи роботу
 PATCH http://localhost:8080/api/users/me/preferences
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "sleep_schedule": "early_bird",
-  "guests_frequency": "rarely",
-  "noise_tolerance": "low",
-  "cleanliness_level": "high",
+  "sleep_schedule": "night_owl",
+  "guests_frequency": "occasionally",
+  "noise_tolerance": "high",
+  "cleanliness_level": "perfectionist",
   "dietary_preferences": "none",
   "isSmoker": false,
   "drinksAlcohol": false,
-  "partyHabits": false
+  "partyHabits": false,
+  "pet": "cat",
+  "workModel": "student",
+  "workRegime": "offline",
+  "workSchedule": null
 }
+
+### Перевірити результат оновлення (Отримати мій профіль)
+# Перевір у відповіді, чи з'явився об'єкт lifestyleProfile з усіма заповненими полями
+GET http://localhost:8080/api/users/me
+Authorization: Bearer {{auth_token}}
 
 
 ### ==========================================

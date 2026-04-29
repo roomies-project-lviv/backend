@@ -38,6 +38,7 @@ public class MatchingService {
         String guests = profile != null ? profile.getGuestsFrequency() : null;
         String diet = profile != null ? profile.getDietaryPreferences() : null;
         String pet = profile != null ? profile.getPet() : null;
+        String workModel = profile != null ? profile.getWorkModel() : null;
         // 2. Викликаємо Native SQL запит, передаючи параметри окремо
         Page<RoommateMatchProjection> matches = requestRepository.findPotentialMatches(
                 cityId,
@@ -51,6 +52,7 @@ public class MatchingService {
                 guests,
                 diet,
                 pet,
+                workModel,
                 pageable
         );
 
