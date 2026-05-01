@@ -15,21 +15,29 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.io.IOException;
+
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     @Autowired
     private SecurityUtils securityUtils;
+
+    @Autowired
+    private SupabaseStorageService storageService;
 
     public UserDto getMyProfile() {
         User me = securityUtils.getCurrentUser();
@@ -82,14 +90,23 @@ public class UserService {
 
         existingUser.setFirstName(updateDto.getFirstName());
         existingUser.setLastName(updateDto.getLastName());
-        existingUser.setEmail(updateDto.getEmail());
+        
+        // ОНОВЛЕННЯ: Змінюємо email та avatarUrl ТІЛЬКИ якщо вони були передані,
+        // щоб не затерти існуючі дані значенням null.
+        if (updateDto.getEmail() != null) {
+            existingUser.setEmail(updateDto.getEmail());
+        }
+        if (updateDto.getAvatarUrl() != null) {
+            existingUser.setAvatarUrl(updateDto.getAvatarUrl());
+        }
+
         existingUser.setBirthDate(updateDto.getBirthDate());
         existingUser.setGender(updateDto.getGender());
-        existingUser.setAvatarUrl(updateDto.getAvatarUrl());
         existingUser.setOccupation(updateDto.getOccupation());
         existingUser.setBio(updateDto.getBio());
 
-        existingUser.setLifestyleProfile(updateDto.getLifestyleProfile());
+        // lifestyleProfile краще оновлювати через окремий метод updateMyPreferences, 
+        // тому тут ми його не чіпаємо, щоб випадково не затерти
 
         User updatedUser = userRepository.save(existingUser);
         return convertToDto(updatedUser);
@@ -199,6 +216,18 @@ public class UserService {
         dto.setEmail(user.getEmail());
         dto.setRole(user.getRole().name());
         return dto;
+    }
+
+    @Transactional
+    public UserDto uploadUserAvatar(UUID userId, MultipartFile file) throws IOException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
+                
+        String avatarUrl = storageService.uploadAvatar(file);
+        user.setAvatarUrl(avatarUrl);
+        userRepository.save(user);
+        
+        return convertToDto(user);
     }
 
 }

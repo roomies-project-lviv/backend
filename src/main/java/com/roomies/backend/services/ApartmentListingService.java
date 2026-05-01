@@ -62,6 +62,7 @@ public class ApartmentListingService {
         listing.setArea(dto.getArea());
         listing.setRoomsTotal(dto.getRoomsTotal());
         listing.setCity(city);
+        listing.setApartmentType(dto.getApartmentType());
         listing.setAuthor(author);
 
         if (dto.getLatitude() != null && dto.getLongitude() != null) {
@@ -89,6 +90,7 @@ public class ApartmentListingService {
         dto.setAddress(entity.getAddress());
         dto.setArea(entity.getArea());
         dto.setRoomsTotal(entity.getRoomsTotal());
+        dto.setApartmentType(entity.getApartmentType());
         
         if (entity.getCity() != null) {
             dto.setCityId(entity.getCity().getId());
@@ -115,7 +117,8 @@ public class ApartmentListingService {
         existing.setArea(dto.getArea());
         existing.setAddress(dto.getAddress());
         existing.setRoomsTotal(dto.getRoomsTotal());
-    
+        existing.setApartmentType(dto.getApartmentType());
+
         if (dto.getCityId() != 0) {
             City city = cityRepository.findById(dto.getCityId())
                     .orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
@@ -154,7 +157,7 @@ public class ApartmentListingService {
             dto.setAddress(listing.getAddress());
             dto.setArea(listing.getArea());
             dto.setRoomsTotal(listing.getRoomsTotal());
-            
+            dto.setApartmentType(listing.getApartmentType());
             if (listing.getCity() != null) {
                 dto.setCityId(listing.getCity().getId());
                 dto.setCityName(listing.getCity().getName());
@@ -193,6 +196,7 @@ public class ApartmentListingService {
         listing.setRoomsTotal(dto.getRoomsTotal());
         listing.setAuthor(author);
         listing.setCity(city);
+        listing.setApartmentType(dto.getApartmentType());
 
         return convertToDto(listingRepository.save(listing));
     }

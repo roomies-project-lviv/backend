@@ -47,6 +47,9 @@ public class ApartmentListing {
     @Column(columnDefinition = "geometry(Point,4326)")
     private Point location;
 
+    @Column(name = "apartment_type")
+    private String apartmentType;
+
     // --- Гетери та Сетери ---
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -80,5 +83,8 @@ public class ApartmentListing {
     
     public Point getLocation() { return location; }
     public void setLocation(Point location) { this.location = location; }
+    
+    public String getApartmentType() { return apartmentType; }
+    public void setApartmentType(String apartmentType) { this.apartmentType = apartmentType; }
     
 }

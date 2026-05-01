@@ -23,6 +23,7 @@ public class ApartmentListingDto {
     private String address;
     private Double area;
     private int roomsTotal;
+    private String apartmentType;
     
     // Географічні координати
     private Double latitude;
@@ -45,6 +46,7 @@ public class ApartmentListingDto {
     public String getAddress() { return address; } public void setAddress(String address) { this.address = address; }
     public Double getArea() { return area; } public void setArea(Double area) { this.area = area; }
     public int getRoomsTotal() { return roomsTotal; } public void setRoomsTotal(int roomsTotal) { this.roomsTotal = roomsTotal; }
+    public String getApartmentType() { return apartmentType; } public void setApartmentType(String apartmentType) { this.apartmentType = apartmentType; }
 
     public Double getLatitude() { return latitude; } public void setLatitude(Double latitude) { this.latitude = latitude; }
     public Double getLongitude() { return longitude; } public void setLongitude(Double longitude) { this.longitude = longitude; }
