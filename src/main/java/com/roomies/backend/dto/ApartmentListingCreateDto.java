@@ -10,6 +10,7 @@ public class ApartmentListingCreateDto {
     private Double area;
     private int roomsTotal;
     private int cityId;
+    private String apartmentType;
 
     private Double latitude;
     private Double longitude;
@@ -23,5 +24,6 @@ public class ApartmentListingCreateDto {
     public int getCityId() { return cityId; } public void setCityId(int cityId) { this.cityId = cityId; }
     public Double getLatitude() { return latitude; } public void setLatitude(Double latitude) { this.latitude = latitude; }
     public Double getLongitude() { return longitude; } public void setLongitude(Double longitude) { this.longitude = longitude; }
-    
+    public String getApartmentType() { return apartmentType; }  public void setApartmentType(String apartmentType) { this.apartmentType = apartmentType; }
+
 }
