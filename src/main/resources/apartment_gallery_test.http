@@ -1,0 +1,62 @@
+### ==========================================
+### ТЕСТУВАННЯ ГАЛЕРЕЇ (MULTIPART/FORM-DATA)
+### ==========================================
+
+### 1. Створення оголошення з кількома фотографіями
+POST http://localhost:8080/api/listings
+Authorization: Bearer {{auth_token}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="data"
+Content-Type: application/json
+
+{
+  "title": "Сучасна квартира в центрі з галереєю",
+  "pricePerMonth": 18000,
+  "address": "вул. Шевченка, 15",
+  "area": 55.5,
+  "roomsTotal": 2,
+  "cityId": 1,
+  "apartmentType": "flat"
+}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="images"; filename="room1.jpg"
+Content-Type: image/jpeg
+
+< ./room1.jpg
+--WebAppBoundary
+Content-Disposition: form-data; name="images"; filename="room2.jpg"
+Content-Type: image/jpeg
+
+< ./room2.jpg
+--WebAppBoundary--
+
+
+### 2. Перевірка результату (Отримати всі оголошення)
+# Перевіряємо, чи повернулися наші imageUrls та розумний гетер coverImageUrl
+GET http://localhost:8080/api/listings?sort=createdAt,desc
+Authorization: Bearer {{auth_token}}
+
+
+### 3. Створення оголошення БЕЗ фотографій
+# Перевіряємо, що required = false працює, і база коректно зберігає порожній масив []
+POST http://localhost:8080/api/listings
+Authorization: Bearer {{auth_token}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="data"
+Content-Type: application/json
+
+{
+  "title": "Квартира без фотографій",
+  "pricePerMonth": 10000,
+  "address": "вул. Залізнична, 3",
+  "area": 30.0,
+  "roomsTotal": 1,
+  "cityId": 2,
+  "apartmentType": "room"
+}
+--WebAppBoundary--

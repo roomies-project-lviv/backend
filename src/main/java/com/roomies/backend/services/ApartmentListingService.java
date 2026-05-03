@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -39,6 +40,8 @@ public class ApartmentListingService {
     @Autowired private CityRepository cityRepository;
     @Autowired private SecurityUtils securityUtils;
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+
+    @Autowired private SupabaseStorageService storageService;
 
     public Page<ApartmentListingDto> getAllActiveListings(Pageable pageable) {
         return listingRepository.findByIsActiveTrue(pageable).map(this::convertToDto);
@@ -51,7 +54,7 @@ public class ApartmentListingService {
     }
 
     @Transactional
-    public ApartmentListingDto createListing(ApartmentListingCreateDto dto, User author) {
+    public ApartmentListingDto createListing(ApartmentListingCreateDto dto, User author, List<MultipartFile> images) {
         City city = cityRepository.findById(dto.getCityId())
                 .orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
 
@@ -68,6 +71,12 @@ public class ApartmentListingService {
         if (dto.getLatitude() != null && dto.getLongitude() != null) {
             Point location = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
             listing.setLocation(location);
+        }
+
+        // НОВИЙ КОД: Завантаження фотографій
+        if (images != null && !images.isEmpty()) {
+            List<String> imageUrls = storageService.uploadListingImages(images);
+            listing.setImageUrls(imageUrls);
         }
 
         return convertToDto(listingRepository.save(listing));
@@ -102,7 +111,7 @@ public class ApartmentListingService {
             dto.setLongitude(entity.getLocation().getX());
             dto.setLatitude(entity.getLocation().getY());
         }
-        
+        dto.setImageUrls(entity.getImageUrls());
         return dto;
     }
 
