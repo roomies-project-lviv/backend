@@ -105,9 +105,7 @@ public class UserService {
         existingUser.setOccupation(updateDto.getOccupation());
         existingUser.setBio(updateDto.getBio());
 
-        // lifestyleProfile краще оновлювати через окремий метод updateMyPreferences, 
-        // тому тут ми його не чіпаємо, щоб випадково не затерти
-
+        existingUser.setLifestyleProfile(updateDto.getLifestyleProfile());
         User updatedUser = userRepository.save(existingUser);
         return convertToDto(updatedUser);
     }
