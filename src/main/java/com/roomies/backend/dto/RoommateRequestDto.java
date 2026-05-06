@@ -1,5 +1,6 @@
 package com.roomies.backend.dto;
 
+import com.roomies.backend.models.LifestyleProfile;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,12 +20,14 @@ public class RoommateRequestDto {
     private String authorAvatarUrl;
     private String authorOccupation;
     private LocalDate authorBirthDate;
+    private String authorGender;
     
     // Дані про бажане місто
     private Integer targetCityId;
     private String targetCityName;
 
     private Integer matchPercentage;
+    private LifestyleProfile lifestyleProfile;
 
     // --- Гетери та Сетери ---
     public UUID getId() { return id; } public void setId(UUID id) { this.id = id; }
@@ -46,4 +49,9 @@ public class RoommateRequestDto {
     public Integer getMatchPercentage() { return matchPercentage; }
     public void setMatchPercentage(Integer matchPercentage) { this.matchPercentage = matchPercentage; }
 
+    public String getAuthorGender() { return authorGender; }
+    public void setAuthorGender(String authorGender) { this.authorGender = authorGender; }
+
+    public LifestyleProfile getLifestyleProfile() { return lifestyleProfile; }
+    public void setLifestyleProfile(LifestyleProfile lifestyleProfile) {this.lifestyleProfile = lifestyleProfile;}
 }

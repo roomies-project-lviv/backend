@@ -75,7 +75,7 @@ Authorization: Bearer {{auth_token}}
 
 ### 1. Отримати всі (За замовчуванням: Спочатку новіші)
 GET http://localhost:8080/api/listings
-Authorization: Bearer {{auth_token}}
+//Authorization: Bearer {{auth_token}}
 
 ### 2. Сортування: СПОЧАТКУ СТАРІШІ
 # Передаємо sort=createdAt,asc (ascending - за зростанням)

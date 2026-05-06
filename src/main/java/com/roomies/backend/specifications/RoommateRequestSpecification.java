@@ -30,7 +30,6 @@ public class RoommateRequestSpecification {
                 predicates.add(cb.lessThanOrEqualTo(root.get("budgetMax"), filter.getMaxBudget()));
             }
 
-            // ЗМІНЕНО: Вік рахується правильно
             if (filter.getAgeMin() != null) {
                 LocalDate maxBirthDate = LocalDate.now().minusYears(filter.getAgeMin());
                 predicates.add(cb.lessThanOrEqualTo(author.get("birthDate"), maxBirthDate));
@@ -40,20 +39,11 @@ public class RoommateRequestSpecification {
                 predicates.add(cb.greaterThan(author.get("birthDate"), minBirthDate));
             }
 
-            // ЗМІНЕНО: Безпечне порівняння статі (переводимо Enum у текст і порівнюємо)
             if (filter.getGender() != null && !filter.getGender().isEmpty()) {
                 predicates.add(cb.equal(
-                    cb.upper(author.get("gender").as(String.class)), 
-                    filter.getGender().toUpperCase()
+                        cb.upper(author.get("gender").as(String.class)),
+                        filter.getGender().toUpperCase()
                 ));
-            }
-
-            if (filter.getHasPets() != null) {
-                if (filter.getHasPets()) {
-                    predicates.add(cb.isNotNull(author.get("petType")));
-                } else {
-                    predicates.add(cb.isNull(author.get("petType")));
-                }
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
