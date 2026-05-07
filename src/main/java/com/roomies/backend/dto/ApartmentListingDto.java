@@ -1,5 +1,6 @@
 package com.roomies.backend.dto;
 
+import com.roomies.backend.models.ApartmentAmenities;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -24,13 +25,16 @@ public class ApartmentListingDto {
     private Double area;
     private int roomsTotal;
     private String apartmentType;
-    
+    private ApartmentAmenities amenities;
+
     // Географічні координати
     private Double latitude;
     private Double longitude;
 
     // Дані про галерею
     private java.util.List<String> imageUrls;
+
+
 
     // --- Гетери та Сетери ---
     public UUID getId() { return id; } public void setId(UUID id) { this.id = id; }
@@ -53,6 +57,9 @@ public class ApartmentListingDto {
 
     public Double getLatitude() { return latitude; } public void setLatitude(Double latitude) { this.latitude = latitude; }
     public Double getLongitude() { return longitude; } public void setLongitude(Double longitude) { this.longitude = longitude; }
+
+    public ApartmentAmenities getAmenities() { return amenities; }
+    public void setAmenities(ApartmentAmenities amenities) { this.amenities = amenities; }
 
     public java.util.List<String> getImageUrls() { return imageUrls; }
     public void setImageUrls(java.util.List<String> imageUrls) { this.imageUrls = imageUrls; }

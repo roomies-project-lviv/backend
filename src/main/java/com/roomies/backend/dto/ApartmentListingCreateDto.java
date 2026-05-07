@@ -1,7 +1,7 @@
 package com.roomies.backend.dto;
 
 import java.math.BigDecimal;
-import java.util.UUID;
+import com.roomies.backend.models.ApartmentAmenities;
 
 public class ApartmentListingCreateDto {
     private String title;
@@ -14,6 +14,8 @@ public class ApartmentListingCreateDto {
 
     private Double latitude;
     private Double longitude;
+    private ApartmentAmenities amenities;
+
 
     // --- Гетери та Сетери ---
     public String getTitle() { return title; } public void setTitle(String title) { this.title = title; }
@@ -25,5 +27,7 @@ public class ApartmentListingCreateDto {
     public Double getLatitude() { return latitude; } public void setLatitude(Double latitude) { this.latitude = latitude; }
     public Double getLongitude() { return longitude; } public void setLongitude(Double longitude) { this.longitude = longitude; }
     public String getApartmentType() { return apartmentType; }  public void setApartmentType(String apartmentType) { this.apartmentType = apartmentType; }
+    public ApartmentAmenities getAmenities() { return amenities; }
+    public void setAmenities(ApartmentAmenities amenities) { this.amenities = amenities; }
 
 }
