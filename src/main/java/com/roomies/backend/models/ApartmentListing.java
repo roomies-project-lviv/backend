@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.locationtech.jts.geom.Point;
 
 @Entity
@@ -50,6 +53,10 @@ public class ApartmentListing {
     @Column(name = "apartment_type")
     private String apartmentType;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "image_urls", columnDefinition = "jsonb")
+    private java.util.List<String> imageUrls = new java.util.ArrayList<>();
+
     // --- Гетери та Сетери ---
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -86,5 +93,8 @@ public class ApartmentListing {
     
     public String getApartmentType() { return apartmentType; }
     public void setApartmentType(String apartmentType) { this.apartmentType = apartmentType; }
-    
+
+    public java.util.List<String> getImageUrls() { return imageUrls; }
+    public void setImageUrls(java.util.List<String> imageUrls) { this.imageUrls = imageUrls; }
+
 }

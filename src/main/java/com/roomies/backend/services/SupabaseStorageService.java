@@ -43,5 +43,47 @@ public class SupabaseStorageService {
             throw new RuntimeException("Помилка завантаження файлу в Supabase Storage");
         }
     }
-    
+
+    @Value("${supabase.bucket.apartments:apartments}")
+    private String apartmentsBucket;
+
+    public String uploadListingImage(MultipartFile file) throws IOException {
+        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.\\-]", "_");
+        // Змінюємо тут на apartmentsBucket
+        String url = supabaseUrl + "/storage/v1/object/" + apartmentsBucket + "/" + fileName;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + supabaseKey);
+        headers.setContentType(MediaType.valueOf(file.getContentType() != null ? file.getContentType() : "application/octet-stream"));
+
+        HttpEntity<byte[]> requestEntity = new HttpEntity<>(file.getBytes(), headers);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            // І тут теж на apartmentsBucket
+            return supabaseUrl + "/storage/v1/object/public/" + apartmentsBucket + "/" + fileName;
+        } else {
+            throw new RuntimeException("Помилка завантаження фото квартири");
+        }
+    }
+
+    public java.util.List<String> uploadListingImages(java.util.List<MultipartFile> files) {
+        java.util.List<String> uploadedUrls = new java.util.ArrayList<>();
+        if (files == null || files.isEmpty()) {
+            return uploadedUrls; // Якщо фото не передали, повертаємо порожній список
+        }
+
+        for (MultipartFile file : files) {
+            try {
+                // Викликаємо метод з Частини 2 для кожного файлу
+                String url = uploadListingImage(file);
+                uploadedUrls.add(url);
+            } catch (IOException e) {
+                // Логуємо помилку, але НЕ викидаємо Exception
+                System.err.println("Не вдалося завантажити файл: " + file.getOriginalFilename());
+            }
+        }
+        return uploadedUrls;
+    }
 }

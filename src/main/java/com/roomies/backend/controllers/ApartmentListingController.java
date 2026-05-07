@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/listings")
@@ -44,12 +45,15 @@ public class ApartmentListingController {
         return ResponseEntity.ok(listingService.getListingById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<ApartmentListingDto> createListing(@RequestBody ApartmentListingCreateDto createDto) {
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<ApartmentListingDto> createListing(
+            @RequestPart("data") ApartmentListingCreateDto createDto,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+
         // Отримуємо користувача безпосередньо з SecurityUtils
         User currentUser = securityUtils.getCurrentUser();
-        
-        return new ResponseEntity<>(listingService.createListing(createDto, currentUser), HttpStatus.CREATED);
+
+        return new ResponseEntity<>(listingService.createListing(createDto, currentUser, images), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

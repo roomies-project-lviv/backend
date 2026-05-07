@@ -29,6 +29,9 @@ public class ApartmentListingDto {
     private Double latitude;
     private Double longitude;
 
+    // Дані про галерею
+    private java.util.List<String> imageUrls;
+
     // --- Гетери та Сетери ---
     public UUID getId() { return id; } public void setId(UUID id) { this.id = id; }
     public String getTitle() { return title; } public void setTitle(String title) { this.title = title; }
@@ -50,4 +53,15 @@ public class ApartmentListingDto {
 
     public Double getLatitude() { return latitude; } public void setLatitude(Double latitude) { this.latitude = latitude; }
     public Double getLongitude() { return longitude; } public void setLongitude(Double longitude) { this.longitude = longitude; }
+
+    public java.util.List<String> getImageUrls() { return imageUrls; }
+    public void setImageUrls(java.util.List<String> imageUrls) { this.imageUrls = imageUrls; }
+
+    public String getCoverImageUrl() {
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            return imageUrls.get(0);
+        }
+        return null;
+    }
+
 }
