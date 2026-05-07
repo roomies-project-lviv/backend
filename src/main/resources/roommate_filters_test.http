@@ -1,0 +1,89 @@
+### 1. Отримати список усіх оголошень (без фільтрів)
+POST http://localhost:8080/api/roommate-requests/search
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{}
+
+### 2. Фільтр за містом та бюджетом
+# Перевір, чи повертаються оголошення лише для вказаного міста (ID)
+POST http://localhost:8080/api/roommate-requests/search
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "targetCityId": 1,
+  "minBudget": 1000,
+  "maxBudget": 5000
+}
+
+### 3. Фільтр за статтю (Male)
+# Має повернути лише чоловіків
+POST http://localhost:8080/api/roommate-requests/search
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "gender": "MALE"
+}
+
+### 4. Фільтр за статтю (Female)
+# Має повернути лише жінок
+POST http://localhost:8080/api/roommate-requests/search
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "gender": "FEMALE"
+}
+
+### 5. Фільтр: Тільки ті, хто має тварин (Pets = true)
+# Тут ми перевіряємо нашу нову логіку в JSONB
+POST http://localhost:8080/api/roommate-requests/search
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "hasPets": true
+}
+
+### 6. Фільтр: Тільки ті, хто НЕ має тварин (Pets = false)
+POST http://localhost:8080/api/roommate-requests/search
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "hasPets": false
+}
+
+### 7. Складний фільтр: Некурящі жінки з тваринами
+# Це тест на те, як працюють кілька фільтрів одночасно
+POST http://localhost:8080/api/roommate-requests/search
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "gender": "female",
+  "isSmoker": false,
+  "hasPets": true
+}
+
+### 8. Фільтр за віком (наприклад, від 20 до 30 років)
+POST http://localhost:8080/api/roommate-requests/search
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "ageMin": 20,
+  "ageMax": 30
+}
+
+### 9. Фільтр за графіком сну та вечірками
+POST http://localhost:8080/api/roommate-requests/search
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "sleepSchedule": "night_owl",
+  "partyHabits": null
+}

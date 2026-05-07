@@ -103,7 +103,9 @@ public class RoommateRequestService {
         dto.setId(req.getId());
         dto.setBudgetMax(req.getBudgetMax());
         dto.setRequirements(req.getRequirements());
-        
+        dto.setIsActive(req.getIsActive());
+        dto.setCreatedAt(req.getCreatedAt());
+
         if (req.getTargetCity() != null) {
             dto.setTargetCityId(req.getTargetCity().getId());
             dto.setTargetCityName(req.getTargetCity().getName());
@@ -113,16 +115,13 @@ public class RoommateRequestService {
         if (req.getAuthor() != null) {
             dto.setAuthorId(req.getAuthor().getId());
             dto.setAuthorFirstName(req.getAuthor().getFirstName());
-            
-            // 1. Витягуємо дату народження напряму з User
             dto.setAuthorBirthDate(req.getAuthor().getBirthDate());
-            
-            // 2. Витягуємо професію з LifestyleProfile (якщо профіль створено)
-            if (req.getAuthor().getLifestyleProfile() != null) {
-                dto.setAuthorOccupation(req.getAuthor().getOccupation());
-            }
+            dto.setAuthorAvatarUrl(req.getAuthor().getAvatarUrl());
+            dto.setAuthorOccupation(req.getAuthor().getOccupation());
+            dto.setAuthorGender(req.getAuthor().getGender());
+            dto.setLifestyleProfile(req.getAuthor().getLifestyleProfile());
         }
-        
+
         return dto;
     }
 
@@ -166,6 +165,7 @@ public class RoommateRequestService {
     }
 
     // Метод для фільтрації анкет за допомогою RoommateFilterDto
+    // Метод для фільтрації анкет за допомогою RoommateFilterDto
     public List<RoommateRequestDto> searchRequests(RoommateFilterDto filter) {
         // 1. Шукаємо базу (бюджет, місто, вік, стать)
         Specification<RoommateRequest> spec = RoommateRequestSpecification.withFilter(filter);
@@ -173,24 +173,50 @@ public class RoommateRequestService {
 
         // 2. Фільтруємо Лайфстайл (JSONB) у пам'яті
         return requests.stream().filter(req -> {
-            if (req.getAuthor() == null || req.getAuthor().getLifestyleProfile() == null) return true;
-            
-            var lifestyle = req.getAuthor().getLifestyleProfile();
 
-            if (filter.getIsSmoker() != null && !filter.getIsSmoker().equals(lifestyle.getIsSmoker())) return false;
-            if (filter.getPartyHabits() != null && !filter.getPartyHabits().equals(lifestyle.getPartyHabits())) return false;
-            if (filter.getDrinksAlcohol() != null && !filter.getDrinksAlcohol().equals(lifestyle.getDrinksAlcohol())) return false;
-            
-            if (filter.getSleepSchedule() != null && !filter.getSleepSchedule().isEmpty() && !filter.getSleepSchedule().equals(lifestyle.getSleepSchedule())) return false;
-            if (filter.getNoiseTolerance() != null && !filter.getNoiseTolerance().isEmpty() && !filter.getNoiseTolerance().equals(lifestyle.getNoiseTolerance())) return false;
-            if (filter.getGuestsFrequency() != null && !filter.getGuestsFrequency().isEmpty() && !filter.getGuestsFrequency().equals(lifestyle.getGuestsFrequency())) return false;
-            if (filter.getCleanlinessLevel() != null && !filter.getCleanlinessLevel().isEmpty() && !filter.getCleanlinessLevel().equals(lifestyle.getCleanlinessLevel())) return false;
-            if (filter.getDietaryPreferences() != null && !filter.getDietaryPreferences().isEmpty() && !filter.getDietaryPreferences().equals(lifestyle.getDietaryPreferences())) return false;
+                    // Перевіряємо, чи юзер взагалі застосував хоч один фільтр зі звичок або тварин
+                    boolean hasLifestyleFilters = filter.getIsSmoker() != null ||
+                            filter.getPartyHabits() != null ||
+                            filter.getDrinksAlcohol() != null ||
+                            (filter.getSleepSchedule() != null && !filter.getSleepSchedule().isEmpty()) ||
+                            (filter.getNoiseTolerance() != null && !filter.getNoiseTolerance().isEmpty()) ||
+                            (filter.getGuestsFrequency() != null && !filter.getGuestsFrequency().isEmpty()) ||
+                            (filter.getCleanlinessLevel() != null && !filter.getCleanlinessLevel().isEmpty()) ||
+                            (filter.getDietaryPreferences() != null && !filter.getDietaryPreferences().isEmpty()) ||
+                            filter.getHasPets() != null;
 
-            return true;
-        })
-        .map(this::convertToDto)
-        .collect(Collectors.toList());
+                    if (req.getAuthor() == null || req.getAuthor().getLifestyleProfile() == null) {
+                        // Якщо автор анкети не заповнив звички, але ми шукаємо саме за звичками -> відхиляємо його (!hasLifestyleFilters)
+                        // Якщо ми не шукаємо за звичками -> пропускаємо (true)
+                        return !hasLifestyleFilters;
+                    }
+
+                    var lifestyle = req.getAuthor().getLifestyleProfile();
+
+                    if (filter.getIsSmoker() != null && !filter.getIsSmoker().equals(lifestyle.getIsSmoker())) return false;
+                    if (filter.getPartyHabits() != null && !filter.getPartyHabits().equals(lifestyle.getPartyHabits())) return false;
+                    if (filter.getDrinksAlcohol() != null && !filter.getDrinksAlcohol().equals(lifestyle.getDrinksAlcohol())) return false;
+
+                    if (filter.getSleepSchedule() != null && !filter.getSleepSchedule().isEmpty() && !filter.getSleepSchedule().equals(lifestyle.getSleepSchedule())) return false;
+                    if (filter.getNoiseTolerance() != null && !filter.getNoiseTolerance().isEmpty() && !filter.getNoiseTolerance().equals(lifestyle.getNoiseTolerance())) return false;
+                    if (filter.getGuestsFrequency() != null && !filter.getGuestsFrequency().isEmpty() && !filter.getGuestsFrequency().equals(lifestyle.getGuestsFrequency())) return false;
+                    if (filter.getCleanlinessLevel() != null && !filter.getCleanlinessLevel().isEmpty() && !filter.getCleanlinessLevel().equals(lifestyle.getCleanlinessLevel())) return false;
+                    if (filter.getDietaryPreferences() != null && !filter.getDietaryPreferences().isEmpty() && !filter.getDietaryPreferences().equals(lifestyle.getDietaryPreferences())) return false;
+
+                    // ДОДАНО: Правильна логіка перевірки наявності тварин
+                    if (filter.getHasPets() != null) {
+                        // Вважаємо, що тварина є, якщо поле не порожнє і не дорівнює "none"
+                        boolean userHasPet = lifestyle.getPet() != null &&
+                                !lifestyle.getPet().trim().isEmpty() &&
+                                !lifestyle.getPet().equalsIgnoreCase("none");
+
+                        if (filter.getHasPets() != userHasPet) return false;
+                    }
+
+                    return true;
+                })
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional

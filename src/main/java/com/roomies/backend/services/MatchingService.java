@@ -80,6 +80,10 @@ public class MatchingService {
             dto.setAuthorId(entity.getAuthor().getId());
             dto.setAuthorFirstName(entity.getAuthor().getFirstName());
             dto.setAuthorAvatarUrl(entity.getAuthor().getAvatarUrl());
+            dto.setAuthorBirthDate(entity.getAuthor().getBirthDate());
+            dto.setAuthorOccupation(entity.getAuthor().getOccupation());
+            dto.setAuthorGender(entity.getAuthor().getGender());
+            dto.setLifestyleProfile(entity.getAuthor().getLifestyleProfile());
         }
 
         if (entity.getTargetCity() != null) {
