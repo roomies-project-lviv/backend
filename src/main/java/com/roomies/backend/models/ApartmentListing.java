@@ -54,6 +54,10 @@ public class ApartmentListing {
     private String apartmentType;
 
     @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "amenities", columnDefinition = "jsonb")
+    private ApartmentAmenities amenities;
+
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "image_urls", columnDefinition = "jsonb")
     private java.util.List<String> imageUrls = new java.util.ArrayList<>();
 
@@ -93,6 +97,9 @@ public class ApartmentListing {
     
     public String getApartmentType() { return apartmentType; }
     public void setApartmentType(String apartmentType) { this.apartmentType = apartmentType; }
+
+    public ApartmentAmenities getAmenities() { return amenities; }
+    public void setAmenities(ApartmentAmenities amenities) { this.amenities = amenities; }
 
     public java.util.List<String> getImageUrls() { return imageUrls; }
     public void setImageUrls(java.util.List<String> imageUrls) { this.imageUrls = imageUrls; }

@@ -67,6 +67,7 @@ public class ApartmentListingService {
         listing.setCity(city);
         listing.setApartmentType(dto.getApartmentType());
         listing.setAuthor(author);
+        listing.setAmenities(dto.getAmenities());
 
         if (dto.getLatitude() != null && dto.getLongitude() != null) {
             Point location = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
@@ -94,13 +95,13 @@ public class ApartmentListingService {
         dto.setPricePerMonth(entity.getPricePerMonth());
         dto.setAuthorId(entity.getAuthor().getId());
         dto.setAuthorFirstName(entity.getAuthor().getFirstName());
-        
-        // НОВЕ МАПЛЕННЯ (Без getApartment())
+
         dto.setAddress(entity.getAddress());
         dto.setArea(entity.getArea());
         dto.setRoomsTotal(entity.getRoomsTotal());
         dto.setApartmentType(entity.getApartmentType());
-        
+        dto.setAmenities(entity.getAmenities());
+
         if (entity.getCity() != null) {
             dto.setCityId(entity.getCity().getId());
             dto.setCityName(entity.getCity().getName());
@@ -127,7 +128,7 @@ public class ApartmentListingService {
         existing.setAddress(dto.getAddress());
         existing.setRoomsTotal(dto.getRoomsTotal());
         existing.setApartmentType(dto.getApartmentType());
-
+        existing.setAmenities(dto.getAmenities());
         if (dto.getCityId() != 0) {
             City city = cityRepository.findById(dto.getCityId())
                     .orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));

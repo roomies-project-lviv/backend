@@ -68,6 +68,41 @@ public class ApartmentListingSpecification {
                 predicates.add(cb.or(addressMatch, cityMatch));
             }
 
+            // --- ФІЛЬТРАЦІЯ ЗРУЧНОСТЕЙ (JSONB) ---
+            if (Boolean.TRUE.equals(filter.getWifi())) {
+                predicates.add(cb.equal(cb.function("jsonb_extract_path_text", String.class, root.get("amenities"), cb.literal("wifi")), "true"));
+            }
+            if (Boolean.TRUE.equals(filter.getWashingMachine())) {
+                predicates.add(cb.equal(cb.function("jsonb_extract_path_text", String.class, root.get("amenities"), cb.literal("washingMachine")), "true"));
+            }
+            if (Boolean.TRUE.equals(filter.getBoiler())) {
+                predicates.add(cb.equal(cb.function("jsonb_extract_path_text", String.class, root.get("amenities"), cb.literal("boiler")), "true"));
+            }
+            if (Boolean.TRUE.equals(filter.getAirConditioner())) {
+                predicates.add(cb.equal(cb.function("jsonb_extract_path_text", String.class, root.get("amenities"), cb.literal("airConditioner")), "true"));
+            }
+            if (Boolean.TRUE.equals(filter.getDishwasher())) {
+                predicates.add(cb.equal(cb.function("jsonb_extract_path_text", String.class, root.get("amenities"), cb.literal("dishwasher")), "true"));
+            }
+            if (Boolean.TRUE.equals(filter.getElevator())) {
+                predicates.add(cb.equal(cb.function("jsonb_extract_path_text", String.class, root.get("amenities"), cb.literal("elevator")), "true"));
+            }
+            if (Boolean.TRUE.equals(filter.getShelter())) {
+                predicates.add(cb.equal(cb.function("jsonb_extract_path_text", String.class, root.get("amenities"), cb.literal("shelter")), "true"));
+            }
+            if (Boolean.TRUE.equals(filter.getParking())) {
+                predicates.add(cb.equal(cb.function("jsonb_extract_path_text", String.class, root.get("amenities"), cb.literal("parking")), "true"));
+            }
+            if (Boolean.TRUE.equals(filter.getSecurity())) {
+                predicates.add(cb.equal(cb.function("jsonb_extract_path_text", String.class, root.get("amenities"), cb.literal("security")), "true"));
+            }
+            if (Boolean.TRUE.equals(filter.getPetFriendly())) {
+                predicates.add(cb.equal(cb.function("jsonb_extract_path_text", String.class, root.get("amenities"), cb.literal("petFriendly")), "true"));
+            }
+            if (Boolean.TRUE.equals(filter.getKidsFriendly())) {
+                predicates.add(cb.equal(cb.function("jsonb_extract_path_text", String.class, root.get("amenities"), cb.literal("kidsFriendly")), "true"));
+            }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
