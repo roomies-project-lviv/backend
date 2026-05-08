@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+import com.roomies.backend.models.Role;
 
 @Service
 @Transactional
@@ -124,5 +125,10 @@ public class UserReviewService {
         }
 
         return dto;
+    }
+
+    public Page<UserReviewDto> getCompanyReviews(Pageable pageable) {
+        return reviewRepository.findByTargetUserRoleOrderByCreatedAtDesc(Role.ADMIN, pageable)
+                .map(this::convertToDto);
     }
 }

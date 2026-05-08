@@ -55,6 +55,12 @@ public class UserReviewController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/company")
+    public ResponseEntity<Page<UserReviewDto>> getCompanyReviews(
+            @PageableDefault(size = 5) Pageable pageable) {
+        return ResponseEntity.ok(reviewService.getCompanyReviews(pageable));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<Page<UserReviewDto>> getMyReviews(
             @PageableDefault(size = 10) Pageable pageable) {
