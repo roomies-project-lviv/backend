@@ -1,5 +1,6 @@
 package com.roomies.backend.repositories;
 
+import com.roomies.backend.models.Role;
 import com.roomies.backend.models.UserReview;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,11 +14,13 @@ import java.util.UUID;
 @Repository
 public interface UserReviewRepository extends JpaRepository<UserReview, UUID> {
 
-    // ОНОВЛЕНО: Тепер використовуємо Page та Pageable
     Page<UserReview> findByTargetUserIdOrderByCreatedAtDesc(UUID targetUserId, Pageable pageable);
 
     @Query("SELECT AVG(r.rating) FROM UserReview r WHERE r.targetUser.id = :targetUserId")
     Double getAverageRatingForUser(@Param("targetUserId") UUID targetUserId);
 
     boolean existsByAuthorIdAndTargetUserId(UUID authorId, UUID targetUserId);
+
+    // НОВИЙ МЕТОД: Шукаємо відгуки за роллю цільового користувача (з пагінацією та сортуванням)
+    Page<UserReview> findByTargetUserRoleOrderByCreatedAtDesc(Role role, Pageable pageable);
 }

@@ -1,0 +1,25 @@
+### ==========================================
+### ТЕСТУВАННЯ ВІДГУКІВ ПРО КОМПАНІЮ (COMPANY REVIEWS)
+### ==========================================
+
+### 1. Створити відгук про компанію (Залишити відгук адміністратору)
+# УВАГА: Заміни "ТВІЙ-ID-АДМІНА-ТУТ" на реальний UUID користувача, який має роль ADMIN.
+POST http://localhost:8080/api/reviews
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "targetUserId": "b3cef0a6-d4a6-4b5f-97be-d18b1ddee453",
+  "rating": 5,
+  "content": "Дуже класний сервіс! Знайшов ідеального сусіда за два дні. Дякую розробникам!"
+}
+
+### 2. Отримати всі відгуки про компанію (Новий ендпоінт)
+# Цей запит поверне всі відгуки, де цільовий користувач має роль ADMIN
+GET http://localhost:8080/api/reviews/company
+Authorization: Bearer {{auth_token}}
+
+### 3. Отримати відгуки про компанію (Наступна сторінка)
+# Щоб перевірити, як працює пагінація
+GET http://localhost:8080/api/reviews/company?page=1&size=10
+Authorization: Bearer {{auth_token}}
