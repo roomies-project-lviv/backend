@@ -14,6 +14,8 @@ import java.util.UUID;
 
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, UUID> {
+    java.util.Optional<ChatMessage> findFirstByChatRoomOrderByTimestampDesc(ChatRoom chatRoom);
+
     // Отримати всі повідомлення для кімнати, відсортовані від найстарішого до найновішого
     List<ChatMessage> findByChatRoomOrderByTimestampAsc(ChatRoom chatRoom);
 

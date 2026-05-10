@@ -46,6 +46,17 @@ public class ChatService {
             User otherUser = room.getUser1().getId().equals(me.getId()) ? room.getUser2() : room.getUser1();
             dto.setOtherUserId(otherUser.getId());
             dto.setOtherUserFirstName(otherUser.getFirstName());
+
+            // --- ДОДАЄМО АВАТАР ---
+            dto.setOtherUserAvatarUrl(otherUser.getAvatarUrl());
+
+            // --- ДОДАЄМО ОСТАННЄ ПОВІДОМЛЕННЯ ---
+            chatMessageRepository.findFirstByChatRoomOrderByTimestampDesc(room)
+                .ifPresent(msg -> {
+                    dto.setLastMessageContent(msg.getContent());
+                    dto.setLastMessageSenderId(msg.getSender().getId()); // Хто написав
+                    dto.setIsLastMessageRead(msg.getIsRead());           // Чи прочитане
+                });
             
             dto.setUnreadCount(chatMessageRepository.countUnreadMessages(room, me));    // ДОДАЄМО ПІДРАХУНОК НЕПРОЧИТАНИХ ПОВІДОМЛЕНЬ
 
@@ -75,6 +86,9 @@ public class ChatService {
         dto.setOtherUserId(targetUser.getId());
         dto.setOtherUserFirstName(targetUser.getFirstName());
         dto.setLastMessageAt(room.getLastMessageAt());
+
+        // --- ДОДАЄМО АВАТАР ТУТ ТЕЖ ---
+        dto.setOtherUserAvatarUrl(targetUser.getAvatarUrl());
         return dto;
     }
 
