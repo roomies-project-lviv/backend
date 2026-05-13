@@ -4,12 +4,13 @@ import com.roomies.backend.security.CustomUserDetailsService;
 import com.roomies.backend.security.JwtAuthenticationEntryPoint;
 import com.roomies.backend.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,8 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; 
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
 import java.util.Arrays;
 
 @Configuration
@@ -46,7 +48,6 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        // Передаємо userDetailsService прямо в конструктор
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
@@ -57,30 +58,31 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // 1. ДОДАЙ ЦЕЙ НОВИЙ БІН ДЛЯ CORS
+    // 1. --- ГЛОБАЛЬНИЙ CORS ФІЛЬТР З НАЙВИЩИМ ПРІОРИТЕТОМ ---
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        // Вказуємо твої домени
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "https://frontend-3t7r.onrender.com"));
-        // Дозволяємо всі потрібні методи (OPTIONS обов'язково!)
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        // Дозволяємо всі заголовки
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-
+    public FilterRegistrationBean<CorsFilter> customCorsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Застосовуємо ці правила до абсолютно всіх шляхів
-        source.registerCorsConfiguration("/**", configuration); 
-        return source;
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        // Вказуємо твої домени
+        config.setAllowedOrigins(Arrays.asList("http://localhost:4200", "https://frontend-3t7r.onrender.com"));
+        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        
+        source.registerCorsConfiguration("/**", config);
+        
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
+        // Це змушує CORS оброблятися ДО будь-яких перевірок безпеки та JWT!
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE); 
+        return bean;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            // 2. Spring Security автоматично підтягне бін corsConfigurationSource(), який ми створили вище
-            .cors(Customizer.withDefaults()) 
+            // 2. Вимикаємо внутрішній CORS, оскільки ми перехоплюємо його глобальним фільтром вище
+            .cors(AbstractHttpConfigurer::disable) 
             .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())
@@ -93,18 +95,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/roommates/search").permitAll()
                 .requestMatchers("/ws/**").permitAll() 
                 .requestMatchers("/api/password-reset/**", "/api/cities").permitAll()
-
                 .requestMatchers("/error").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Дозволяємо OPTIONS запити
-
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
-    
 }
