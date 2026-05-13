@@ -10,7 +10,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**") // Дозволяємо CORS для всіх наших ендпоінтів
-                .allowedOrigins("http://localhost:4200") // Адреса твого Angular
+                .allowedOrigins("http://localhost:4200", "https://*.vercel.app") // Дозволяємо Vercel та локальний фронтенд
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Дозволені HTTP методи
                 .allowedHeaders("*") // Дозволяємо будь-які заголовки
                 .allowCredentials(true); // Дозволяємо передачу кукі та авторизаційних даних (для JWT)
