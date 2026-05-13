@@ -61,9 +61,14 @@ public class ApartmentListingController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApartmentListingDto> updateListing(@PathVariable UUID id, @RequestBody ApartmentListingCreateDto updateDto) {
-        return ResponseEntity.ok(listingService.updateListing(id, updateDto));
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<ApartmentListingDto> updateListing(
+            @PathVariable UUID id,
+            @RequestPart("data") ApartmentListingCreateDto updateDto,
+            @RequestPart(value = "retainedImages", required = false) List<String> retainedImages,
+            @RequestPart(value = "newImages", required = false) List<MultipartFile> newImages) {
+
+        return ResponseEntity.ok(listingService.updateListing(id, updateDto, retainedImages, newImages));
     }
 
     @GetMapping
