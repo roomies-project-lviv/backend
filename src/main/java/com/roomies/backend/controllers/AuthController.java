@@ -88,14 +88,16 @@ public class AuthController {
         return ResponseEntity.ok("Новий код відправлено");
     }
 
-    // Утиліта для додавання HttpOnly куки
+    // Утиліта для додавання HttpOnly куки з підтримкою Cross-Site
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true); // Фронтенд (JS) не матиме доступу до цієї куки
-        cookie.setSecure(false); // ВАЖЛИВО: На продакшені (HTTPS) має бути true! На localhost - false.
-        cookie.setPath("/api/auth"); // Ця кука буде відправлятися ТІЛЬКИ на ендпоінти авторизації
-        cookie.setMaxAge(7 * 24 * 60 * 60); // 7 днів у секундах
-        response.addCookie(cookie);
+        org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true) // ВАЖЛИВО: Обов'язково true для HTTPS
+                .path("/api/auth")
+                .maxAge(7 * 24 * 60 * 60) // 7 днів
+                .sameSite("None") // ВАЖЛИВО: Дозволяє передачу між різними доменами Render
+                .build();
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     @PostMapping("/register")
@@ -156,12 +158,15 @@ public class AuthController {
                     .ifPresent(user -> refreshTokenService.deleteByUser(user)));
         }
 
-        // Очищаємо куку
-        Cookie cookie = new Cookie("refreshToken", null);
-        cookie.setPath("/api/auth");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
+        // Очищаємо куку правильно для Cross-Site
+        org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/api/auth")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString());
 
         return ResponseEntity.ok("Успішний вихід з системи");
     }
