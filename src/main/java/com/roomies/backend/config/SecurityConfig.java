@@ -19,7 +19,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; // <--- ДОДАЙ ІМПОРТ
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; 
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -53,34 +57,50 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
+    // 1. ДОДАЙ ЦЕЙ НОВИЙ БІН ДЛЯ CORS
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Вказуємо твої домени
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "https://frontend-3t7r.onrender.com"));
+        // Дозволяємо всі потрібні методи (OPTIONS обов'язково!)
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        // Дозволяємо всі заголовки
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Застосовуємо ці правила до абсолютно всіх шляхів
+        source.registerCorsConfiguration("/**", configuration); 
+        return source;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(Customizer.withDefaults())
+            // 2. Spring Security автоматично підтягне бін corsConfigurationSource(), який ми створили вище
+            .cors(Customizer.withDefaults()) 
             .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
-                //.requestMatchers("/api/**").permitAll() // Дозволяємо всі запити до /api/ без аутентифікації, але всередині контролерів ми будемо перевіряти токен та ролі
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/listings/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/listings/search").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/roommates/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/roommates/search").permitAll()
-                .requestMatchers("/ws/**").permitAll()  // Дозволяємо ініціювати WebSocket з'єднання всім, але всередині ми перевіримо токен через JwtChannelInterceptor
-                .requestMatchers("/api/auth/**", "/api/password-reset/**", "/ws/**", "/api/cities").permitAll()
+                .requestMatchers("/ws/**").permitAll() 
+                .requestMatchers("/api/password-reset/**", "/api/cities").permitAll()
 
-                // Дозволяємо внутрішні помилки та OPTIONS запити від Angular
                 .requestMatchers("/error").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Дозволяємо OPTIONS запити
 
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                 .anyRequest().authenticated()
             )
-            // ДОДАЄМО НАШ ФІЛЬТР ПЕРЕД СТАНДАРТНИМ ФІЛЬТРОМ SPRING
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
