@@ -86,4 +86,35 @@ public class SupabaseStorageService {
         }
         return uploadedUrls;
     }
+
+    // Універсальний метод видалення
+    private void deleteFile(String fileUrl, String bucketName) {
+        if (fileUrl == null || fileUrl.isEmpty()) return;
+        try {
+            // Витягуємо ім'я файлу з URL (все, що після останнього слєшу)
+            String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+            String url = supabaseUrl + "/storage/v1/object/" + bucketName + "/" + fileName;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + supabaseKey);
+
+            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+            RestTemplate restTemplate = new RestTemplate();
+
+            // Відправляємо DELETE запит до Supabase
+            restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
+            System.out.println("Файл успішно видалено: " + fileName);
+        } catch (Exception e) {
+            System.err.println("Помилка видалення файлу з Supabase: " + e.getMessage());
+        }
+    }
+
+    // Зручні обгортки для конкретних бакетів
+    public void deleteAvatar(String fileUrl) {
+        deleteFile(fileUrl, avatarBucket);
+    }
+
+    public void deleteListingImage(String fileUrl) {
+        deleteFile(fileUrl, apartmentsBucket); // apartmentsBucket у тебе вже визначено через @Value
+    }
 }

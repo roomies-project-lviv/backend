@@ -116,12 +116,11 @@ public class ApartmentListingService {
         return dto;
     }
 
-    public ApartmentListingDto updateListing(UUID id, ApartmentListingCreateDto dto) {
+    @Transactional
+    public ApartmentListingDto updateListing(UUID id, ApartmentListingCreateDto dto, List<String> retainedImages, List<MultipartFile> newImages) {
         ApartmentListing existing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"));
 
-        // Зазвичай при оновленні оголошення змінюють лише текст і ціну, 
-        // але якщо треба, можна оновлювати й інші поля
         existing.setTitle(dto.getTitle());
         existing.setPricePerMonth(dto.getPricePerMonth());
         existing.setArea(dto.getArea());
@@ -129,6 +128,7 @@ public class ApartmentListingService {
         existing.setRoomsTotal(dto.getRoomsTotal());
         existing.setApartmentType(dto.getApartmentType());
         existing.setAmenities(dto.getAmenities());
+
         if (dto.getCityId() != 0) {
             City city = cityRepository.findById(dto.getCityId())
                     .orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
@@ -139,6 +139,32 @@ public class ApartmentListingService {
             Point location = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
             existing.setLocation(location);
         }
+
+        // --- ОЧИЩЕННЯ ФОТОГРАФІЙ ---
+        List<String> currentImages = existing.getImageUrls();
+        if (currentImages != null) {
+            for (String currentImage : currentImages) {
+                // Якщо стара фотографія НЕ передана у списку залишених (retainedImages), видаляємо її зі сховища
+                if (retainedImages == null || !retainedImages.contains(currentImage)) {
+                    storageService.deleteListingImage(currentImage);
+                }
+            }
+        }
+
+        // Формуємо фінальний список картинок (починаємо з тих, що вирішили залишити)
+        List<String> finalImages = new java.util.ArrayList<>();
+        if (retainedImages != null) {
+            finalImages.addAll(retainedImages);
+        }
+
+        // Завантажуємо абсолютно нові фотографії, якщо вони є
+        if (newImages != null && !newImages.isEmpty()) {
+            List<String> uploadedUrls = storageService.uploadListingImages(newImages);
+            finalImages.addAll(uploadedUrls);
+        }
+
+        // Оновлюємо масив у базі даних
+        existing.setImageUrls(finalImages);
 
         ApartmentListing updated = listingRepository.save(existing);
         return convertToDto(updated);

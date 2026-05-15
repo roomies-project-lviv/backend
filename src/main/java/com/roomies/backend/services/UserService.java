@@ -90,15 +90,28 @@ public class UserService {
 
         existingUser.setFirstName(updateDto.getFirstName());
         existingUser.setLastName(updateDto.getLastName());
-        
-        // ОНОВЛЕННЯ: Змінюємо email та avatarUrl ТІЛЬКИ якщо вони були передані,
-        // щоб не затерти існуючі дані значенням null.
         if (updateDto.getEmail() != null) {
             existingUser.setEmail(updateDto.getEmail());
         }
-        if (updateDto.getAvatarUrl() != null) {
-            existingUser.setAvatarUrl(updateDto.getAvatarUrl());
+        // --- НОВА ЛОГІКА ДЛЯ АВАТАРКИ ---
+        String oldAvatar = existingUser.getAvatarUrl();
+        String newAvatar = updateDto.getAvatarUrl();
+
+        // Випадок: Користувач видалив аватарку (прийшов null або порожньо)
+        if (newAvatar == null || newAvatar.trim().isEmpty()) {
+            if (oldAvatar != null && !oldAvatar.isEmpty()) {
+                storageService.deleteAvatar(oldAvatar); // Видаляємо фізичний файл
+                existingUser.setAvatarUrl(null);        // Очищаємо посилання в БД
+            }
         }
+        // Випадок: Прийшло нове посилання (не таке, як було)
+        else if (!newAvatar.equals(oldAvatar)) {
+            if (oldAvatar != null && !oldAvatar.isEmpty()) {
+                storageService.deleteAvatar(oldAvatar);
+            }
+            existingUser.setAvatarUrl(newAvatar);
+        }
+        // --------------------------------
 
         existingUser.setBirthDate(updateDto.getBirthDate());
         existingUser.setGender(updateDto.getGender());
@@ -220,11 +233,17 @@ public class UserService {
     public UserDto uploadUserAvatar(UUID userId, MultipartFile file) throws IOException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Користувача не знайдено"));
-                
+
+        // --- ОЧИЩЕННЯ СТАРОГО АВАТАРА ---
+        if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
+            storageService.deleteAvatar(user.getAvatarUrl());
+        }
+        // ---------------------------------------
+
         String avatarUrl = storageService.uploadAvatar(file);
         user.setAvatarUrl(avatarUrl);
         userRepository.save(user);
-        
+
         return convertToDto(user);
     }
 
