@@ -11,12 +11,14 @@ import com.roomies.backend.repositories.UserRepository;
 import com.roomies.backend.security.SecurityUtils;
 import com.roomies.backend.models.Role;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,6 +40,9 @@ public class UserService {
 
     @Autowired
     private SupabaseStorageService storageService;
+
+    @Autowired private ApartmentListingService listingService;
+    @Autowired private RoommateRequestService roommateService;
 
     public UserDto getMyProfile() {
         User me = securityUtils.getCurrentUser();
@@ -245,6 +250,29 @@ public class UserService {
         userRepository.save(user);
 
         return convertToDto(user);
+    }
+
+    public Map<String, Object> getMyAdsCombined() {
+        User me = securityUtils.getCurrentUser();
+
+        // 1. Отримуємо список усіх квартир користувача
+        // Використовуємо метод сервісу з великим розміром сторінки, щоб забрати всі
+        var listings = listingService.getListingsByUserId(me.getId(), PageRequest.of(0, 100)).getContent();
+
+        // 2. Отримуємо анкету сусіда
+        // Оскільки анкета одна, беремо першу зі списку або null
+        var roommateRequest = roommateService.getRequestsByUserId(me.getId(), PageRequest.of(0, 1))
+                .getContent()
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+        // 3. Об'єднуємо в мапу
+        Map<String, Object> ads = new HashMap<>();
+        ads.put("listings", listings);
+        ads.put("roommateRequest", roommateRequest);
+
+        return ads;
     }
 
 }

@@ -20,6 +20,8 @@ public interface RoommateRequestRepository extends JpaRepository<RoommateRequest
 
     // Метод для пошуку анкет конкретного користувача
     List<RoommateRequest> findByAuthorId(UUID authorId);
+    Page<RoommateRequest> findByAuthorId(UUID authorId, Pageable pageable);
+
 
     @Query(value =
             "SELECT r.id AS requestId, " +

@@ -15,7 +15,7 @@ import org.springframework.data.domain.Pageable;
 public interface ApartmentListingRepository extends JpaRepository<ApartmentListing, UUID>, JpaSpecificationExecutor<ApartmentListing> {
     List<ApartmentListing> findByIsActiveTrue();
     List<ApartmentListing> findByAuthorId(UUID authorId);
-
+    Page<ApartmentListing> findByAuthorId(UUID authorId, Pageable pageable);
     Page<ApartmentListing> findByIsActiveTrue(Pageable pageable); // Замінили List на Page
 
 }

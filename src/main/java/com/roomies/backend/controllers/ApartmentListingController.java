@@ -43,6 +43,18 @@ public class ApartmentListingController {
     public ResponseEntity<ApartmentListingDto> getListingById(@PathVariable UUID id) {
         return ResponseEntity.ok(listingService.getListingById(id));
     }
+    @GetMapping("/me")
+    public ResponseEntity<Page<ApartmentListingDto>> getMyListings(
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 20) Pageable pageable) {
+        return ResponseEntity.ok(listingService.getMyListings(pageable));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<ApartmentListingDto>> getListingsByUserId(
+            @PathVariable UUID userId,
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 20) Pageable pageable) {
+        return ResponseEntity.ok(listingService.getListingsByUserId(userId, pageable));
+    }
 
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<ApartmentListingDto> createListing(

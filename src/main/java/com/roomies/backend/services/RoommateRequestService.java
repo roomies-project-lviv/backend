@@ -53,6 +53,16 @@ public class RoommateRequestService {
         return convertToDto(request);
     }
 
+    public Page<RoommateRequestDto> getRequestsByUserId(UUID userId, Pageable pageable) {
+        return requestRepository.findByAuthorId(userId, pageable)
+                .map(this::convertToDto);
+    }
+
+    public Page<RoommateRequestDto> getMyRequests(Pageable pageable) {
+        User me = securityUtils.getCurrentUser();
+        return getRequestsByUserId(me.getId(), pageable);
+    }
+
     public RoommateRequestDto createRequest(RoommateRequestCreateDto dto) {
         User author = securityUtils.getCurrentUser();
 
