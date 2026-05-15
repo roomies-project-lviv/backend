@@ -5,6 +5,8 @@ import com.roomies.backend.dto.RoommateRequestDto;
 import com.roomies.backend.dto.filters.RoommateFilterDto;
 import com.roomies.backend.services.RoommateRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +43,20 @@ public class RoommateRequestController {
     @GetMapping("/{id}")
     public ResponseEntity<RoommateRequestDto> getRequestById(@PathVariable UUID id) {
         return ResponseEntity.ok(requestService.getRequestById(id));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<Page<RoommateRequestDto>> getMyRequests(
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+        return ResponseEntity.ok(requestService.getMyRequests(pageable));
+    }
+
+    // ДОДАНО: Ендпоїнт для анкет іншого юзера за його ID
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<RoommateRequestDto>> getRequestsByUserId(
+            @PathVariable UUID userId,
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+        return ResponseEntity.ok(requestService.getRequestsByUserId(userId, pageable));
     }
 
     @PostMapping

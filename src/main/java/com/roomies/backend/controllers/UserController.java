@@ -61,5 +61,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/me/ads")
+    public ResponseEntity<Map<String, Object>> getMyAds() {
+        return ResponseEntity.ok(userService.getMyAdsCombined());
+    }
     
 }

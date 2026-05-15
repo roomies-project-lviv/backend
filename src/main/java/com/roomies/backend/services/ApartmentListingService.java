@@ -52,6 +52,15 @@ public class ApartmentListingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"));
         return convertToDto(listing);
     }
+    public Page<ApartmentListingDto> getListingsByUserId(UUID userId, Pageable pageable) {
+        return listingRepository.findByAuthorId(userId, pageable)
+                .map(this::convertToDto);
+    }
+
+    public Page<ApartmentListingDto> getMyListings(Pageable pageable) {
+        User me = securityUtils.getCurrentUser();
+        return getListingsByUserId(me.getId(), pageable);
+    }
 
     @Transactional
     public ApartmentListingDto createListing(ApartmentListingCreateDto dto, User author, List<MultipartFile> images) {
