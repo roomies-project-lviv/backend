@@ -13,6 +13,7 @@ public class RoommateRequestDto {
     private String requirements;
     private Boolean isActive;
     private LocalDateTime createdAt;
+    private String status;
 
     // Дані про автора
     private UUID authorId;
@@ -54,4 +55,7 @@ public class RoommateRequestDto {
 
     public LifestyleProfile getLifestyleProfile() { return lifestyleProfile; }
     public void setLifestyleProfile(LifestyleProfile lifestyleProfile) {this.lifestyleProfile = lifestyleProfile;}
+
+    public String getStatus() { return status; } 
+    public void setStatus(String status) { this.status = status; }
 }

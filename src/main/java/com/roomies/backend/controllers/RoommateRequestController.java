@@ -33,9 +33,10 @@ public class RoommateRequestController {
     @PostMapping("/search")
     public ResponseEntity<List<RoommateRequestDto>> searchRequests(
             @RequestBody(required = false) RoommateFilterDto filterDto) {
-        
-        if (filterDto == null) filterDto = new RoommateFilterDto();
-        
+
+        if (filterDto == null)
+            filterDto = new RoommateFilterDto();
+
         // ВАЖЛИВО: Викликаємо метод, який фільтрує JSONB!
         return ResponseEntity.ok(requestService.searchRequests(filterDto));
     }
@@ -65,7 +66,8 @@ public class RoommateRequestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RoommateRequestDto> updateRequest(@PathVariable UUID id, @RequestBody RoommateRequestCreateDto updateDto) {
+    public ResponseEntity<RoommateRequestDto> updateRequest(@PathVariable UUID id,
+            @RequestBody RoommateRequestCreateDto updateDto) {
         return ResponseEntity.ok(requestService.updateRequest(id, updateDto));
     }
 
@@ -75,5 +77,16 @@ public class RoommateRequestController {
         return ResponseEntity.noContent().build();
     }
 
-    
+    @PatchMapping("/{id}/archive")
+    public ResponseEntity<Void> archiveRequest(@PathVariable UUID id) {
+        requestService.archiveRequest(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/unarchive")
+    public ResponseEntity<Void> unarchiveRequest(@PathVariable UUID id) {
+        requestService.unarchiveRequest(id);
+        return ResponseEntity.ok().build();
+    }
+
 }

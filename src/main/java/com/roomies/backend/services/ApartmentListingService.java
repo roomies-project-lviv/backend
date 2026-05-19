@@ -30,18 +30,24 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.multipart.MultipartFile;
+import com.roomies.backend.exceptions.UnauthorizedAccessException;
 
 @Service
 @Transactional
 public class ApartmentListingService {
 
-    @Autowired private ApartmentListingRepository listingRepository;
-    @Autowired private UserRepository userRepository;
-    @Autowired private CityRepository cityRepository;
-    @Autowired private SecurityUtils securityUtils;
+    @Autowired
+    private ApartmentListingRepository listingRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private CityRepository cityRepository;
+    @Autowired
+    private SecurityUtils securityUtils;
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
-    @Autowired private SupabaseStorageService storageService;
+    @Autowired
+    private SupabaseStorageService storageService;
 
     public Page<ApartmentListingDto> getAllActiveListings(Pageable pageable) {
         return listingRepository.findByIsActiveTrue(pageable).map(this::convertToDto);
@@ -52,6 +58,7 @@ public class ApartmentListingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"));
         return convertToDto(listing);
     }
+
     public Page<ApartmentListingDto> getListingsByUserId(UUID userId, Pageable pageable) {
         return listingRepository.findByAuthorId(userId, pageable)
                 .map(this::convertToDto);
@@ -104,6 +111,7 @@ public class ApartmentListingService {
         dto.setPricePerMonth(entity.getPricePerMonth());
         dto.setAuthorId(entity.getAuthor().getId());
         dto.setAuthorFirstName(entity.getAuthor().getFirstName());
+        dto.setStatus(entity.getIsActive() != null && entity.getIsActive() ? "ACTIVE" : "ARCHIVED");
 
         dto.setAddress(entity.getAddress());
         dto.setArea(entity.getArea());
@@ -126,7 +134,8 @@ public class ApartmentListingService {
     }
 
     @Transactional
-    public ApartmentListingDto updateListing(UUID id, ApartmentListingCreateDto dto, List<String> retainedImages, List<MultipartFile> newImages) {
+    public ApartmentListingDto updateListing(UUID id, ApartmentListingCreateDto dto, List<String> retainedImages,
+            List<MultipartFile> newImages) {
         ApartmentListing existing = listingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"));
 
@@ -153,7 +162,8 @@ public class ApartmentListingService {
         List<String> currentImages = existing.getImageUrls();
         if (currentImages != null) {
             for (String currentImage : currentImages) {
-                // Якщо стара фотографія НЕ передана у списку залишених (retainedImages), видаляємо її зі сховища
+                // Якщо стара фотографія НЕ передана у списку залишених (retainedImages),
+                // видаляємо її зі сховища
                 if (retainedImages == null || !retainedImages.contains(currentImage)) {
                     storageService.deleteListingImage(currentImage);
                 }
@@ -184,7 +194,6 @@ public class ApartmentListingService {
         return listingRepository.findAll(spec, pageable).map(this::convertToDto);
     }
 
-
     // Отримати всі оголошення для адмінки
     public List<ApartmentListingDto> getAllListingsForAdmin() {
         return listingRepository.findAll().stream().map(listing -> {
@@ -192,13 +201,13 @@ public class ApartmentListingService {
             dto.setId(listing.getId());
             dto.setTitle(listing.getTitle());
             dto.setPricePerMonth(listing.getPricePerMonth());
-            
+
             // ДОДАНО: Передаємо ID автора для фронтенду, щоб працював випадаючий список!
             if (listing.getAuthor() != null) {
-                dto.setAuthorId(listing.getAuthor().getId()); 
+                dto.setAuthorId(listing.getAuthor().getId());
                 dto.setAuthorFirstName(listing.getAuthor().getFirstName());
             }
-            
+
             dto.setAddress(listing.getAddress());
             dto.setArea(listing.getArea());
             dto.setRoomsTotal(listing.getRoomsTotal());
@@ -207,7 +216,7 @@ public class ApartmentListingService {
                 dto.setCityId(listing.getCity().getId());
                 dto.setCityName(listing.getCity().getName());
             }
-            
+
             return dto;
         }).collect(Collectors.toList());
     }
@@ -216,7 +225,7 @@ public class ApartmentListingService {
     @Transactional
     public void deleteListingByAdmin(String id) {
         // Конвертуємо String у UUID
-        UUID uuidId = UUID.fromString(id); 
+        UUID uuidId = UUID.fromString(id);
 
         // Тепер передаємо uuidId у репозиторій
         if (!listingRepository.existsById(uuidId)) {
@@ -228,11 +237,14 @@ public class ApartmentListingService {
     @Transactional
     public ApartmentListingDto saveListingByAdmin(String id, AdminListingSaveDto dto) {
         ApartmentListing listing = (id != null && !id.isEmpty())
-                ? listingRepository.findById(UUID.fromString(id)).orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"))
+                ? listingRepository.findById(UUID.fromString(id))
+                        .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"))
                 : new ApartmentListing();
 
-        User author = userRepository.findById(dto.getAuthorId()).orElseThrow(() -> new ResourceNotFoundException("Автора не знайдено"));
-        City city = cityRepository.findById(dto.getCityId()).orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
+        User author = userRepository.findById(dto.getAuthorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Автора не знайдено"));
+        City city = cityRepository.findById(dto.getCityId())
+                .orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
 
         listing.setTitle(dto.getTitle());
         listing.setPricePerMonth(dto.getPricePerMonth());
@@ -251,5 +263,34 @@ public class ApartmentListingService {
         Specification<ApartmentListing> spec = ApartmentListingSpecification.withFilter(filter);
         return listingRepository.findAll(spec, pageable)
                 .map(this::convertToDto);
+    }
+
+    @Transactional
+    public void archiveListing(UUID id) {
+        ApartmentListing listing = listingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"));
+
+        User currentUser = securityUtils.getCurrentUser();
+        // Перевіряємо, чи є користувач автором або адміном
+        if (!listing.getAuthor().getId().equals(currentUser.getId()) && !currentUser.getRole().name().equals("ADMIN")) {
+            throw new UnauthorizedAccessException("Ви не маєте доступу до цього оголошення");
+        }
+
+        listing.setIsActive(false); // Змінюємо статус
+        listingRepository.save(listing);
+    }
+
+    @Transactional
+    public void unarchiveListing(UUID id) {
+        ApartmentListing listing = listingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Оголошення не знайдено"));
+
+        User currentUser = securityUtils.getCurrentUser();
+        if (!listing.getAuthor().getId().equals(currentUser.getId()) && !currentUser.getRole().name().equals("ADMIN")) {
+            throw new UnauthorizedAccessException("Ви не маєте доступу до цього оголошення");
+        }
+
+        listing.setIsActive(true); // Повертаємо статус
+        listingRepository.save(listing);
     }
 }

@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**") // Дозволяємо CORS для всіх наших ендпоінтів
                 .allowedOrigins("http://localhost:4200") // Адреса твого Angular
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Дозволені HTTP методи
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH") // Дозволені HTTP методи
                 .allowedHeaders("*") // Дозволяємо будь-які заголовки
                 .allowCredentials(true); // Дозволяємо передачу кукі та авторизаційних даних (для JWT)
     }
