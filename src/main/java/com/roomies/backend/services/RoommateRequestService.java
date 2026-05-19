@@ -26,6 +26,7 @@ import com.roomies.backend.specifications.RoommateRequestSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import com.roomies.backend.exceptions.UnauthorizedAccessException;
 
 import java.util.List;
 import java.util.UUID;
@@ -115,6 +116,7 @@ public class RoommateRequestService {
         dto.setRequirements(req.getRequirements());
         dto.setIsActive(req.getIsActive());
         dto.setCreatedAt(req.getCreatedAt());
+        dto.setStatus(req.getIsActive() != null && req.getIsActive() ? "ACTIVE" : "ARCHIVED");
 
         if (req.getTargetCity() != null) {
             dto.setTargetCityId(req.getTargetCity().getId());
@@ -158,6 +160,10 @@ public class RoommateRequestService {
                 dto.setAuthorFirstName(req.getAuthor().getFirstName());
                 dto.setAuthorBirthDate(req.getAuthor().getBirthDate());
                 dto.setAuthorOccupation(req.getAuthor().getOccupation());
+
+                dto.setAuthorGender(req.getAuthor().getGender());
+                dto.setAuthorAvatarUrl(req.getAuthor().getAvatarUrl());
+                dto.setLifestyleProfile(req.getAuthor().getLifestyleProfile());
             }
             return dto;
         }).collect(Collectors.toList());
@@ -256,7 +262,39 @@ public class RoommateRequestService {
         result.setTargetCityId(saved.getTargetCity().getId());
         result.setTargetCityName(saved.getTargetCity().getName());
         
+        result.setAuthorGender(saved.getAuthor().getGender());
+        result.setAuthorAvatarUrl(saved.getAuthor().getAvatarUrl());
+        result.setLifestyleProfile(saved.getAuthor().getLifestyleProfile());
+        
         return result;
+    }
+
+    @Transactional
+    public void archiveRequest(UUID id) {
+        RoommateRequest request = requestRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Анкету не знайдено"));
+        
+        User currentUser = securityUtils.getCurrentUser();
+        if (!request.getAuthor().getId().equals(currentUser.getId()) && !currentUser.getRole().name().equals("ADMIN")) {
+            throw new UnauthorizedAccessException("Ви не маєте доступу до цієї анкети");
+        }
+        
+        request.setIsActive(false);
+        requestRepository.save(request);
+    }
+
+    @Transactional
+    public void unarchiveRequest(UUID id) {
+        RoommateRequest request = requestRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Анкету не знайдено"));
+        
+        User currentUser = securityUtils.getCurrentUser();
+        if (!request.getAuthor().getId().equals(currentUser.getId()) && !currentUser.getRole().name().equals("ADMIN")) {
+            throw new UnauthorizedAccessException("Ви не маєте доступу до цієї анкети");
+        }
+        
+        request.setIsActive(true);
+        requestRepository.save(request);
     }
 
 }

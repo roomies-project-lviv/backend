@@ -92,4 +92,15 @@ public class ApartmentListingController {
         return ResponseEntity.ok(listings);
     }
     
+    @PatchMapping("/{id}/archive")
+    public ResponseEntity<Void> archiveListing(@PathVariable UUID id) {
+        listingService.archiveListing(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/unarchive")
+    public ResponseEntity<Void> unarchiveListing(@PathVariable UUID id) {
+        listingService.unarchiveListing(id);
+        return ResponseEntity.ok().build();
+    }
 }

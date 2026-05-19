@@ -30,7 +30,7 @@ public class SecurityConfig {
     private CustomUserDetailsService userDetailsService;
 
     @Autowired
-    private JwtAuthenticationFilter jwtAuthFilter; 
+    private JwtAuthenticationFilter jwtAuthFilter;
 
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthEntryPoint;
@@ -56,35 +56,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(Customizer.withDefaults())
-            .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authenticationProvider(authenticationProvider())
-            .authorizeHttpRequests(auth -> auth
-                //.requestMatchers("/api/**").permitAll() // Дозволяємо всі запити до /api/ без аутентифікації, але всередині контролерів ми будемо перевіряти токен та ролі
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/listings/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/listings/search").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/roommates/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/roommates/search").permitAll()
-                .requestMatchers("/ws/**").permitAll()  // Дозволяємо ініціювати WebSocket з'єднання всім, але всередині ми перевіримо токен через JwtChannelInterceptor
-                .requestMatchers("/api/auth/**", "/api/password-reset/**", "/ws/**", "/api/cities").permitAll()
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .authorizeHttpRequests(auth -> auth
+                        // 1. ВІДКРИТІ ШЛЯХИ (Дозволяємо всім)
+                        .requestMatchers("/api/auth/**", "/api/password-reset/**", "/api/cities").permitAll()
+                        .requestMatchers("/ws/**", "/error").permitAll()
 
-                // Дозволяємо внутрішні помилки та OPTIONS запити від Angular
-                .requestMatchers("/error").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // 2. ПУБЛІЧНИЙ ПЕРЕГЛЯД (Дозволяємо GET запити без логіну)
+                        .requestMatchers(HttpMethod.GET, "/api/listings/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/listings/search").permitAll()
 
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // ВАЖЛИВО: Назва має збігатися з фронтендом (roommate-requests)
+                        .requestMatchers(HttpMethod.GET, "/api/roommate-requests/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/roommate-requests/search").permitAll()
 
-                .anyRequest().authenticated()
-            )
-            // ДОДАЄМО НАШ ФІЛЬТР ПЕРЕД СТАНДАРТНИМ ФІЛЬТРОМ SPRING
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                        // 3. АДМІНКА (Тільки для ADMIN)
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        // 4. ВСЕ ІНШЕ (Тільки для авторизованих користувачів)
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    
 }
