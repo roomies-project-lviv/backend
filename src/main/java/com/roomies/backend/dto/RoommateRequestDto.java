@@ -22,7 +22,8 @@ public class RoommateRequestDto {
     private String authorOccupation;
     private LocalDate authorBirthDate;
     private String authorGender;
-    
+    private String authorBio;
+
     // Дані про бажане місто
     private Integer targetCityId;
     private String targetCityName;
@@ -56,6 +57,9 @@ public class RoommateRequestDto {
     public LifestyleProfile getLifestyleProfile() { return lifestyleProfile; }
     public void setLifestyleProfile(LifestyleProfile lifestyleProfile) {this.lifestyleProfile = lifestyleProfile;}
 
-    public String getStatus() { return status; } 
+    public String getAuthorBio() { return authorBio; }
+    public void setAuthorBio(String authorBio) { this.authorBio = authorBio; }
+
+    public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 }

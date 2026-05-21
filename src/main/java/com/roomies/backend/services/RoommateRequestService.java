@@ -132,6 +132,7 @@ public class RoommateRequestService {
             dto.setAuthorOccupation(req.getAuthor().getOccupation());
             dto.setAuthorGender(req.getAuthor().getGender());
             dto.setLifestyleProfile(req.getAuthor().getLifestyleProfile());
+            dto.setAuthorBio(req.getAuthor().getBio());
         }
 
         return dto;
