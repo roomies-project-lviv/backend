@@ -13,7 +13,7 @@ public class EmailService {
 
     public void sendOtpEmail(String toEmail, String otpCode) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("roomies.app@gmail.com"); // Твій email
+        message.setFrom("danieldragomanov@gmail.com");
         message.setTo(toEmail);
         message.setSubject("Код підтвердження реєстрації ROOMIES");
         message.setText("Ваш код підтвердження: " + otpCode + "\n\nКод дійсний 5 хвилин.");
@@ -23,11 +23,11 @@ public class EmailService {
     
     public void sendPasswordResetOtp(String toEmail, String otpCode) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("roomies.app@gmail.com"); // Твій email
+        message.setFrom("danieldragomanov@gmail.com");
         message.setTo(toEmail);
         message.setSubject("Відновлення паролю ROOMIES");
         message.setText("Ваш код для відновлення паролю: " + otpCode + "\n\nЯкщо ви не робили цей запит, проігноруйте цей лист.\nКод дійсний 5 хвилин.");
-        
+                
         mailSender.send(message);
     }
     

@@ -169,12 +169,13 @@ public class AuthController {
     
     @PostMapping("/password-reset/init")
     public ResponseEntity<String> initPasswordReset(@Valid @RequestBody PasswordResetInitDto request) {
-        // Перевіряємо чи є такий юзер взагалі
-        if (!userRepository.existsByEmail(request.getEmail())) {
-            // За правилами безпеки ми завжди кажемо "Якщо email існує, ми відправили код",
-            // щоб хакери не могли "промацувати" базу на існуючі емейли.
-            return ResponseEntity.ok("Якщо такий email зареєстрований, ми надіслали на нього код.");
-        }
+        
+        // // Перевіряємо чи є такий юзер взагалі
+        // if (!userRepository.existsByEmail(request.getEmail())) {
+        //     // За правилами безпеки ми завжди кажемо "Якщо email існує, ми відправили код",
+        //     // щоб хакери не могли "промацувати" базу на існуючі емейли.
+        //     return ResponseEntity.ok("Якщо такий email зареєстрований, ми надіслали на нього код.");
+        // }
 
         String otp = otpPasswordResetService.generateAndStoreOtp(request.getEmail());
         new Thread(() -> emailService.sendPasswordResetOtp(request.getEmail(), otp)).start();
