@@ -10,7 +10,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**") // Дозволяємо CORS для всіх наших ендпоінтів
-                .allowedOrigins("http://localhost:4200") // Адреса твого Angular
+                .allowedOrigins("http://localhost:4200", "https://roomies-g1e4.onrender.com")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH") // Дозволені HTTP методи
                 .allowedHeaders("*") // Дозволяємо будь-які заголовки
                 .allowCredentials(true); // Дозволяємо передачу кукі та авторизаційних даних (для JWT)

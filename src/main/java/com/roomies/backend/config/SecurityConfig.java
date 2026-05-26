@@ -19,7 +19,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; // <--- ДОДАЙ ІМПОРТ
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;                  // ДОДАНО ІМПОРТ
+import org.springframework.web.cors.CorsConfigurationSource;            // ДОДАНО ІМПОРТ
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;     // ДОДАНО ІМПОРТ
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -42,7 +47,6 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        // Передаємо userDetailsService прямо в конструктор
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
@@ -57,31 +61,50 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
+                .cors(Customizer.withDefaults()) // Буде шукати бін corsConfigurationSource()
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        // 1. ВІДКРИТІ ШЛЯХИ (Дозволяємо всім)
+                        // 1. ВІДКРИТІ ШЛЯХИ
+                        // ЗМІНЕНО: Шлях відновлення паролю тепер підпадає під /api/auth/**, 
+                        // але про всяк випадок залишаємо обидві варіації
                         .requestMatchers("/api/auth/**", "/api/password-reset/**", "/api/cities").permitAll()
                         .requestMatchers("/ws/**", "/error").permitAll()
 
-                        // 2. ПУБЛІЧНИЙ ПЕРЕГЛЯД (Дозволяємо GET запити без логіну)
+                        // 2. ПУБЛІЧНИЙ ПЕРЕГЛЯД
                         .requestMatchers(HttpMethod.GET, "/api/listings/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/listings/search").permitAll()
-
-                        // ВАЖЛИВО: Назва має збігатися з фронтендом (roommate-requests)
                         .requestMatchers(HttpMethod.GET, "/api/roommate-requests/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/roommate-requests/search").permitAll()
 
-                        // 3. АДМІНКА (Тільки для ADMIN)
+                        // 3. АДМІНКА
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // 4. ВСЕ ІНШЕ (Тільки для авторизованих користувачів)
+                        // 4. ВСЕ ІНШЕ
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    // ДОДАНО БІН ДЛЯ КОРЕКТНОЇ РОБОТИ CORS НА RENDER
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        // Вказуємо адреси твого локального фронтенду та задеплоєного на Render Static Site
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:4200", 
+                "https://roomies-g1e4.onrender.com"
+        ));
+        
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true); // Дозволяємо JWT авторизацію
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // Застосовуємо до всіх ендпоінтів
+        return source;
+    }
 }
