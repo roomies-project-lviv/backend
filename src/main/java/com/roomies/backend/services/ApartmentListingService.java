@@ -71,16 +71,34 @@ public class ApartmentListingService {
 
     @Transactional
     public ApartmentListingDto createListing(ApartmentListingCreateDto dto, User author, List<MultipartFile> images) {
-        City city = cityRepository.findById(dto.getCityId())
-                .orElseThrow(() -> new ResourceNotFoundException("Місто не знайдено"));
+        
+        String fullAddress = dto.getAddress();
+        String[] addressParts = fullAddress.split(",", 2); 
+
+        if (addressParts.length < 2) {
+            throw new IllegalArgumentException("Неправильний формат адреси. Очікується формат: Місто, Вулиця...");
+        }
+
+        String rawCityName = addressParts[0].trim();
+        String cleanCityName = rawCityName.replaceAll("(?i)^(м\\.?|місто)\\s*", "").trim();
+
+        String streetAddress = addressParts[1].trim();
+
+        City city = cityRepository.findByNameIgnoreCase(cleanCityName)
+                .orElseThrow(() -> new ResourceNotFoundException("Місто '" + cleanCityName + "' не знайдено в нашій базі"));
+
 
         ApartmentListing listing = new ApartmentListing();
         listing.setTitle(dto.getTitle());
         listing.setPricePerMonth(dto.getPricePerMonth());
-        listing.setAddress(dto.getAddress());
+        
+        listing.setAddress(streetAddress); 
+        
         listing.setArea(dto.getArea());
         listing.setRoomsTotal(dto.getRoomsTotal());
-        listing.setCity(city);
+        
+        listing.setCity(city); 
+        
         listing.setApartmentType(dto.getApartmentType());
         listing.setAuthor(author);
         listing.setAmenities(dto.getAmenities());
@@ -90,7 +108,6 @@ public class ApartmentListingService {
             listing.setLocation(location);
         }
 
-        // НОВИЙ КОД: Завантаження фотографій
         if (images != null && !images.isEmpty()) {
             List<String> imageUrls = storageService.uploadListingImages(images);
             listing.setImageUrls(imageUrls);

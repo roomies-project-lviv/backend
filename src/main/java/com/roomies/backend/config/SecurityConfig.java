@@ -63,7 +63,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         // 1. ВІДКРИТІ ШЛЯХИ (Дозволяємо всім)
-                        .requestMatchers("/api/auth/**", "/api/password-reset/**", "/api/cities").permitAll()
+                        .requestMatchers("/api/**", "/api/password-reset/**", "/api/cities").permitAll()
                         .requestMatchers("/ws/**", "/error").permitAll()
 
                         // 2. ПУБЛІЧНИЙ ПЕРЕГЛЯД (Дозволяємо GET запити без логіну)
