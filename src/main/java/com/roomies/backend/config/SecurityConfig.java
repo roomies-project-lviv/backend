@@ -77,6 +77,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/listings/search").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/roommate-requests/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/roommate-requests/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/company").permitAll()
 
                         // 3. АДМІНКА
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
