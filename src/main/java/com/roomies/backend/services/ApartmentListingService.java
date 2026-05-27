@@ -118,12 +118,14 @@ public class ApartmentListingService {
         dto.setAuthorId(entity.getAuthor().getId());
         dto.setAuthorFirstName(entity.getAuthor().getFirstName());
         dto.setStatus(entity.getIsActive() != null && entity.getIsActive() ? "ACTIVE" : "ARCHIVED");
+        dto.setCreatedAt(entity.getCreatedAt());
 
         dto.setAddress(entity.getAddress());
         dto.setArea(entity.getArea());
         dto.setRoomsTotal(entity.getRoomsTotal());
         dto.setApartmentType(entity.getApartmentType());
         dto.setAmenities(entity.getAmenities());
+
 
         if (entity.getCity() != null) {
             dto.setCityId(entity.getCity().getId());
