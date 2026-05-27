@@ -27,15 +27,21 @@ public class ApartmentListingSpecification {
                 predicates.add(cb.equal(root.get("city").get("id"), filter.getCityId()));
             }
 
-            // ПОШУК У РАДІУСІ (POSTGIS ST_DWithin)
+            // ПОШУК У РАДІУСІ (POSTGIS)
             if (filter.getRadiusLat() != null && filter.getRadiusLng() != null && filter.getRadiusKm() != null) {
                 GeometryFactory gf = new GeometryFactory(new PrecisionModel(), 4326);
                 Point center = gf.createPoint(new Coordinate(filter.getRadiusLng(), filter.getRadiusLat()));
-                
-                // В 1 градусі координат приблизно 111.32 км
-                double radiusDegrees = filter.getRadiusKm() / 111.32;
-                
-                predicates.add(cb.isTrue(cb.function("ST_DWithin", Boolean.class, root.get("location"), cb.literal(center), cb.literal(radiusDegrees))));
+                center.setSRID(4326); // Обов'язково вказуємо SRID
+
+                // Радіус у метрах (км * 1000)
+                double radiusInMeters = filter.getRadiusKm() * 1000.0;
+
+                // Використовуємо ST_DistanceSphere, яка надійно повертає відстань у метрах
+                // WHERE ST_DistanceSphere(location, center) <= radiusInMeters
+                predicates.add(cb.lessThanOrEqualTo(
+                    cb.function("ST_DistanceSphere", Double.class, root.get("location"), cb.literal(center)),
+                    radiusInMeters
+                ));
             }
 
             // ЦІНА

@@ -85,9 +85,15 @@ public class ApartmentListingService {
         listing.setAuthor(author);
         listing.setAmenities(dto.getAmenities());
 
-        if (dto.getLatitude() != null && dto.getLongitude() != null) {
+        if (dto.getLatitude() != null && dto.getLongitude() != null && dto.getLatitude() != 0.0 && dto.getLongitude() != 0.0) {
             Point location = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
+            // ОБОВ'ЯЗКОВО вказуємо SRID для PostGIS
+            location.setSRID(4326); 
             listing.setLocation(location);
+        }
+        else{
+            System.out.println("Координати не вказані або некоректні. Локація не буде збережена для оголошення: " + dto.getTitle());
+            System.out.println("Coordinates are missing or incorrect. The location will not be saved for the ad: " + dto.getTitle());
         }
 
         // НОВИЙ КОД: Завантаження фотографій
